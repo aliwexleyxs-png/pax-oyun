@@ -2,8 +2,22 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>TarihSenaryosu_AI - Tek Kişilik Strateji</title>
+  <title>tarihsenaryosu_ai - Dünya Simülasyonu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Leaflet (dünya haritası için) -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+    integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+    crossorigin=""
+  ></script>
+
   <style>
     * {
       box-sizing: border-box;
@@ -13,766 +27,740 @@
     }
 
     body {
-      background: #0f172a;
+      background: #020617;
       color: #e5e7eb;
-      display: flex;
-      align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      padding: 16px;
+      padding: 12px;
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
     }
 
-    .game {
+    .app {
+      width: 100%;
+      max-width: 1200px;
       background: #020617;
       border-radius: 16px;
-      padding: 20px;
-      max-width: 700px;
-      width: 100%;
-      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
       border: 1px solid #1f2937;
-    }
-
-    /* START SCREEN */
-    .start-screen {
-      text-align: center;
-      padding: 24px 10px;
-    }
-
-    .start-title {
-      font-size: 1.6rem;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
-
-    .start-subtitle {
-      font-size: 0.95rem;
-      color: #9ca3af;
-      margin-bottom: 18px;
-    }
-
-    .start-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.8rem;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #111827;
-      border: 1px solid #1f2937;
-      margin-bottom: 10px;
-      color: #a5b4fc;
-    }
-
-    .start-buttons {
+      box-shadow: 0 20px 50px rgba(0,0,0,0.7);
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      padding: 12px;
+      gap: 10px;
     }
 
-    .btn {
-      border-radius: 999px;
-      padding: 9px 14px;
-      border: 1px solid #1f2937;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: transform 0.1s, box-shadow 0.1s, border-color 0.15s, background 0.15s;
-    }
-
-    .btn-primary {
-      background: linear-gradient(135deg, #4f46e5, #6366f1);
-      color: #e5e7eb;
-      border-color: #4f46e5;
-    }
-
-    .btn-primary:hover {
-      box-shadow: 0 10px 25px rgba(79,70,229,0.45);
-      transform: translateY(-1px);
-    }
-
-    .btn-secondary {
-      background: #020617;
-      color: #e5e7eb;
-    }
-
-    .btn-secondary:hover {
-      border-color: #4b5563;
-      transform: translateY(-1px);
-    }
-
-    .start-hint {
-      font-size: 0.8rem;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    .start-footer {
-      margin-top: 12px;
-      font-size: 0.75rem;
-      color: #4b5563;
-    }
-
-    /* GAME SCREEN */
-    #gameScreen {
-      display: none;
-    }
-
-    .header {
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .title {
-      font-size: 1.4rem;
-      font-weight: 700;
-    }
-
-    .turn-info {
-      font-size: 0.9rem;
-      color: #9ca3af;
-      text-align: right;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 8px;
-      margin-bottom: 16px;
-    }
-
-    .stat {
+      padding: 6px 10px;
+      border-radius: 12px;
       background: #020617;
-      border-radius: 10px;
-      padding: 8px;
-      border: 1px solid #1f2937;
+      border: 1px solid #111827;
     }
 
-    .stat-label {
+    .logo-area {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .logo-main {
+      font-weight: 700;
+      font-size: 1rem;
+    }
+
+    .logo-sub {
       font-size: 0.75rem;
       color: #9ca3af;
-      margin-bottom: 4px;
     }
 
-    .stat-value {
-      font-weight: 600;
-      font-size: 0.95rem;
+    .time-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.85rem;
     }
 
-    .bar {
-      width: 100%;
-      height: 6px;
+    .date-display {
+      padding: 4px 8px;
       border-radius: 999px;
-      background: #111827;
-      margin-top: 4px;
-      overflow: hidden;
-    }
-
-    .bar-fill {
-      height: 100%;
-      background: #22c55e;
-      transition: width 0.3s;
-    }
-
-    .event-box {
-      background: linear-gradient(135deg, #020617, #020617, #0b1120);
-      border-radius: 12px;
-      padding: 14px;
       border: 1px solid #1f2937;
-      margin-bottom: 16px;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      white-space: nowrap;
     }
 
-    .event-title {
-      font-weight: 600;
-      margin-bottom: 6px;
-      font-size: 1.05rem;
+    .time-buttons {
+      display: flex;
+      gap: 4px;
     }
 
-    .event-text {
-      font-size: 0.95rem;
-      color: #d1d5db;
+    .time-btn {
+      border-radius: 999px;
+      padding: 4px 8px;
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: #e5e7eb;
+      cursor: pointer;
+      font-size: 0.8rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: background 0.15s, border-color 0.15s, transform 0.08s;
     }
 
-    .choices {
+    .time-btn span.icon {
+      font-size: 0.9rem;
+    }
+
+    .time-btn:hover {
+      border-color: #4f46e5;
+      background: #111827;
+      transform: translateY(-1px);
+    }
+
+    .main {
+      display: flex;
+      flex: 1;
+      gap: 10px;
+      min-height: 480px;
+    }
+
+    .left-panel {
+      flex: 1.4;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid #111827;
+      background: #020617;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #map {
+      flex: 1;
+      min-height: 380px;
+    }
+
+    .map-footer {
+      padding: 6px 10px;
+      font-size: 0.75rem;
+      border-top: 1px solid #111827;
+      color: #6b7280;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #020617;
+    }
+
+    .right-panel {
+      flex: 1;
       display: flex;
       flex-direction: column;
       gap: 8px;
-      margin-bottom: 10px;
-      margin-top: 10px;
     }
 
-    button.choice {
-      background: #111827;
+    .card {
+      background: #020617;
+      border-radius: 12px;
+      border: 1px solid #111827;
+      padding: 10px;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .card-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .badge {
+      font-size: 0.7rem;
+      padding: 2px 6px;
       border-radius: 999px;
       border: 1px solid #1f2937;
-      padding: 8px 12px;
+      color: #a5b4fc;
+      background: #020617;
+    }
+
+    .country-name {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .country-meta {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 6px;
+    }
+
+    .country-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 6px;
+      font-size: 0.78rem;
+      margin-bottom: 6px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .stat-label {
+      color: #9ca3af;
+    }
+
+    .stat-value {
+      font-weight: 500;
+    }
+
+    .country-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .mini-btn {
+      flex: 1;
+      padding: 4px 6px;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      background: #020617;
+      color: #9ca3af;
+      font-size: 0.75rem;
       cursor: pointer;
-      text-align: left;
-      font-size: 0.9rem;
+      transition: border-color 0.15s, background 0.15s;
+    }
+
+    .mini-btn:hover {
+      border-color: #4b5563;
+      background: #030712;
+    }
+
+    /* Chat */
+    .chat-container {
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      max-height: 280px;
+    }
+
+    .chat-messages {
+      flex: 1;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 8px;
+      font-size: 0.78rem;
+      overflow-y: auto;
+      margin-bottom: 6px;
+    }
+
+    .chat-msg {
+      margin-bottom: 4px;
+    }
+
+    .chat-msg.me {
+      text-align: right;
+    }
+
+    .chat-msg span.role {
+      font-weight: 600;
+      font-size: 0.7rem;
+      color: #9ca3af;
+    }
+
+    .chat-msg span.text {
+      display: inline-block;
+      margin-top: 1px;
+    }
+
+    .chat-msg.bot span.text {
       color: #e5e7eb;
-      transition: transform 0.1s, box-shadow 0.1s, border-color 0.2s, background 0.15s;
     }
 
-    button.choice:hover {
+    .chat-input-row {
+      display: flex;
+      gap: 4px;
+    }
+
+    .chat-input-row input {
+      flex: 1;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 6px 9px;
+      color: #e5e7eb;
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .chat-input-row input:focus {
+      border-color: #4f46e5;
+    }
+
+    .chat-input-row button {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #4f46e5;
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #e5e7eb;
+      font-size: 0.78rem;
+      cursor: pointer;
+      transition: transform 0.08s, box-shadow 0.1s;
+    }
+
+    .chat-input-row button:hover {
+      box-shadow: 0 8px 18px rgba(79,70,229,0.5);
       transform: translateY(-1px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
-      border-color: #6366f1;
     }
 
-    button.choice:active {
+    .chat-input-row button:active {
       transform: translateY(0);
       box-shadow: none;
     }
 
-    .result {
-      font-size: 0.9rem;
-      margin-bottom: 6px;
-      color: #a5b4fc;
-    }
-
-    .game-over {
-      text-align: center;
-      margin-top: 10px;
-      padding-top: 10px;
-      border-top: 1px dashed #1f2937;
-      font-size: 0.95rem;
-    }
-
-    .btn-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 8px;
-      margin-top: 8px;
-    }
-
-    .small-btn {
-      flex: 1;
-      background: #020617;
-      border-radius: 999px;
-      border: 1px solid #1f2937;
-      padding: 6px 10px;
-      cursor: pointer;
-      font-size: 0.75rem;
-      color: #9ca3af;
-      text-align: center;
-    }
-
-    .small-btn:hover {
-      border-color: #4b5563;
-    }
-
-    .log {
-      background: #020617;
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 0.8rem;
-      max-height: 140px;
-      overflow-y: auto;
-      border: 1px solid #111827;
-    }
-
-    .log-entry {
-      margin-bottom: 4px;
-      color: #9ca3af;
-    }
-
-    .log-entry strong {
-      color: #e5e7eb;
+    @media (max-width: 900px) {
+      .main {
+        flex-direction: column;
+      }
+      .left-panel {
+        min-height: 260px;
+      }
+      #map {
+        min-height: 260px;
+      }
     }
 
     @media (max-width: 600px) {
-      .stats {
-        grid-template-columns: repeat(2, 1fr);
-      }
-      .title {
-        font-size: 1.1rem;
+      .time-controls {
+        flex-direction: column;
+        align-items: flex-end;
       }
     }
   </style>
 </head>
 <body>
-  <div class="game">
-    <!-- START SCREEN -->
-    <div id="startScreen" class="start-screen">
-      <div class="start-badge">
-        <span>🧠</span>
-        <span>tarihsenaryosu_ai • prototip</span>
+  <div class="app">
+    <div class="top-bar">
+      <div class="logo-area">
+        <div class="logo-main">tarihsenaryosu_ai</div>
+        <div class="logo-sub">dünya senaryosu • prototip arayüz</div>
       </div>
-      <div class="start-title">📜 Tarih Senaryosu</div>
-      <div class="start-subtitle">
-        Tek kişilik bir strateji simülasyonunda kendi devletini yönet.  
-        Her karar; ekonomi, ordu, halk ve istikrarı değiştirecek.
-      </div>
-
-      <div class="start-buttons">
-        <button id="newGameBtn" class="btn btn-primary">Yeni oyun başlat</button>
-        <button id="continueBtn" class="btn btn-secondary">Kaldığım yerden devam et</button>
-      </div>
-
-      <div class="start-hint">
-        İlerleyişin tarayıcına kaydedilir. Sayfayı kapatsan bile geri dönebilirsin.
-      </div>
-      <div class="start-footer">
-        v0.1 • mekanikler deneme aşamasında
+      <div class="time-controls">
+        <div class="date-display" id="dateDisplay">
+          Tarih yükleniyor...
+        </div>
+        <div class="time-buttons">
+          <button class="time-btn" id="btnWeek">
+            <span class="icon">▶</span>
+            <span>+1 hafta</span>
+          </button>
+          <button class="time-btn" id="btnMonth">
+            <span class="icon">▶▶</span>
+            <span>+1 ay</span>
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- GAME SCREEN -->
-    <div id="gameScreen">
-      <div class="header">
-        <div class="title">📜 TarihSenaryosu_AI</div>
-        <div class="turn-info">
-          Yıl: <span id="year">1453</span><br>
-          Tur: <span id="turn">1</span>
+    <div class="main">
+      <div class="left-panel">
+        <div id="map"></div>
+        <div class="map-footer">
+          <span>🌍 Dünya haritası aktif — tıklayarak bir bölge seç.</span>
+          <span id="coordsLabel">Seçim yok</span>
         </div>
       </div>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="stat-label">Ekonomi</div>
-          <div class="stat-value" id="economyValue">50</div>
-          <div class="bar"><div class="bar-fill" id="economyBar"></div></div>
+      <div class="right-panel">
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Ülke Paneli</div>
+            <div class="badge" id="countryBadge">pasif</div>
+          </div>
+          <div class="country-name" id="countryName">Henüz ülke seçilmedi</div>
+          <div class="country-meta" id="countryMeta">Haritaya tıklayarak bir bölge seç.</div>
+
+          <div class="country-stats" id="countryStats">
+            <div class="stat-row">
+              <span class="stat-label">Başkent</span>
+              <span class="stat-value" id="capitalValue">-</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Nüfus</span>
+              <span class="stat-value" id="populationValue">-</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">GSYİH (tahmini)</span>
+              <span class="stat-value" id="gdpValue">-</span>
+            </div>
+            <div class="stat-row">
+              <span class="stat-label">Bölge</span>
+              <span class="stat-value" id="regionValue">-</span>
+            </div>
+          </div>
+
+          <div class="country-actions">
+            <button class="mini-btn" id="btnFocus">Haritada odaklan</button>
+            <button class="mini-btn" id="btnSimulate">Senaryo üret</button>
+          </div>
         </div>
-        <div class="stat">
-          <div class="stat-label">Ordu</div>
-          <div class="stat-value" id="militaryValue">50</div>
-          <div class="bar"><div class="bar-fill" id="militaryBar"></div></div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">Halk Mutluluğu</div>
-          <div class="stat-value" id="happinessValue">50</div>
-          <div class="bar"><div class="bar-fill" id="happinessBar"></div></div>
-        </div>
-        <div class="stat">
-          <div class="stat-label">İstikrar</div>
-          <div class="stat-value" id="stabilityValue">50</div>
-          <div class="bar"><div class="bar-fill" id="stabilityBar"></div></div>
+
+        <div class="card chat-container">
+          <div class="card-header">
+            <div class="card-title">AI Chat • Ülke bilgisi</div>
+            <div class="badge">offline prototip</div>
+          </div>
+          <div class="chat-messages" id="chatMessages"></div>
+          <div class="chat-input-row">
+            <input
+              type="text"
+              id="chatInput"
+              placeholder="Ülke hakkında soru yaz (örn: 'Türkiye nüfus')..."
+            />
+            <button id="chatSendBtn">Gönder</button>
+          </div>
         </div>
       </div>
-
-      <div class="event-box">
-        <div class="event-title" id="eventTitle">Yeni hükümdarsın!</div>
-        <div class="event-text" id="eventText">
-          Anadolu'da yeni bir devletin başına geçtin. Verdiğin her karar, tarihin akışını değiştirecek.
-        </div>
-
-        <div class="choices" id="choices"></div>
-
-        <div class="result" id="resultText"></div>
-
-        <div class="game-over" id="gameOver" style="display:none;"></div>
-
-        <div class="btn-row">
-          <button class="small-btn" id="nextTurnBtn">Sonraki olayı getir</button>
-          <button class="small-btn" id="restartBtn">Yeniden başla</button>
-        </div>
-      </div>
-
-      <div class="log" id="log"></div>
     </div>
   </div>
 
   <script>
-    const SAVE_KEY = "tarihSenaryosu_ai_save";
+    // ---------- TARİH / ZAMAN SİMÜLASYONU ----------
+    const dateDisplay = document.getElementById("dateDisplay");
+    const btnWeek = document.getElementById("btnWeek");
+    const btnMonth = document.getElementById("btnMonth");
 
-    // Oyun durumu
-    const state = {
-      year: 1453,
-      turn: 1,
-      economy: 50,
-      military: 50,
-      happiness: 50,
-      stability: 50,
-      alive: true
-    };
-
-    // DOM referansları
-    const startScreen = document.getElementById("startScreen");
-    const gameScreen = document.getElementById("gameScreen");
-    const newGameBtn = document.getElementById("newGameBtn");
-    const continueBtn = document.getElementById("continueBtn");
-
-    const yearSpan = document.getElementById("year");
-    const turnSpan = document.getElementById("turn");
-
-    const economyValue = document.getElementById("economyValue");
-    const militaryValue = document.getElementById("militaryValue");
-    const happinessValue = document.getElementById("happinessValue");
-    const stabilityValue = document.getElementById("stabilityValue");
-
-    const economyBar = document.getElementById("economyBar");
-    const militaryBar = document.getElementById("militaryBar");
-    const happinessBar = document.getElementById("happinessBar");
-    const stabilityBar = document.getElementById("stabilityBar");
-
-    const eventTitle = document.getElementById("eventTitle");
-    const eventText = document.getElementById("eventText");
-    const choicesDiv = document.getElementById("choices");
-    const resultText = document.getElementById("resultText");
-    const logDiv = document.getElementById("log");
-    const gameOverDiv = document.getElementById("gameOver");
-
-    const nextTurnBtn = document.getElementById("nextTurnBtn");
-    const restartBtn = document.getElementById("restartBtn");
-
-    // Olay havuzu (aynı)
-    const events = [
-      {
-        title: "Vergi Reformu",
-        text: "Hazine boşalmak üzere. Danışmanların vergi sistemini değiştirmeyi öneriyor.",
-        choices: [
-          {
-            text: "Zenginlerin vergisini artır.",
-            effects: { economy: +5, happiness: -5, stability: -2 },
-            result: "Hazine biraz doldu ama elit kesim homurdanmaya başladı."
-          },
-          {
-            text: "Halktan ek vergi al.",
-            effects: { economy: +8, happiness: -10, stability: -5 },
-            result: "Kısa vadede hazine doldu fakat halkın öfkesi büyüyor."
-          },
-          {
-            text: "Vergi sistemine dokunma.",
-            effects: { economy: 0, happiness: +3, stability: +2 },
-            result: "Kimseyi kızdırmadın ama sorunlar ertelendi."
-          }
-        ]
-      },
-      {
-        title: "Orduya Yatırım",
-        text: "Sınırda komşu devletin orduyu güçlendirdiği haberi geliyor.",
-        choices: [
-          {
-            text: "Ordunun sayısını artır.",
-            effects: { military: +10, economy: -7, stability: +2 },
-            result: "Ordu güçlendi ama bütçe zorlandı."
-          },
-          {
-            text: "Yeni bir kale inşa et.",
-            effects: { military: +7, economy: -5, stability: +3 },
-            result: "Savunma güvence altında, halk kendini daha güvende hissediyor."
-          },
-          {
-            text: "Hiçbir şey yapma, izlemeye devam et.",
-            effects: { military: 0, stability: -4 },
-            result: "Komşu devlet cesaretlendi, sarayda endişe arttı."
-          }
-        ]
-      },
-      {
-        title: "Kıtlık Tehlikesi",
-        text: "Bu sene yağışlar az oldu. Kıtlık ihtimali konuşuluyor.",
-        choices: [
-          {
-            text: "Depolardaki tahılı halka dağıt.",
-            effects: { happiness: +10, economy: -8, stability: +3 },
-            result: "Halk seni sevgiyle anıyor ama hazine zorlandı."
-          },
-          {
-            text: "Tahılı yüksek fiyata sat.",
-            effects: { economy: +12, happiness: -12, stability: -4 },
-            result: "Hazine doldu ama aç kalanlar isyan etmeye başladı."
-          },
-          {
-            text: "Komşu devletten tahıl satın al.",
-            effects: { economy: -5, happiness: +4, stability: +1 },
-            result: "Açlık hafifledi, dışa bağımlılık biraz arttı."
-          }
-        ]
-      },
-      {
-        title: "Medrese Açılması",
-        text: "Âlimler, şehirde yeni bir medrese açılması için destek istiyor.",
-        choices: [
-          {
-            text: "Medreseyi devlet bütçesinden finanse et.",
-            effects: { economy: -5, stability: +6, happiness: +4 },
-            result: "Bilim ve ilim gelişti, toplumda itibarın arttı."
-          },
-          {
-            text: "Zenginlerden bağış toplanmasını emret.",
-            effects: { economy: 0, happiness: +2, stability: +2 },
-            result: "Halk memnun, zenginler ince bir sitemde bulundu."
-          },
-          {
-            text: "Bu sene bütçe yok, erteleyin.",
-            effects: { stability: -3, happiness: -2 },
-            result: "Âlimler kırıldı, itibarın biraz zedelendi."
-          }
-        ]
-      },
-      {
-        title: "Saray Entrikası",
-        text: "Saray içinde bazı vezirlerin sana karşı gizli ittifak kurduğu söyleniyor.",
-        choices: [
-          {
-            text: "Soruşturma aç ve suçluları cezalandır.",
-            effects: { stability: +5, happiness: -3 },
-            result: "İhanet bastırıldı ama sarayda korku havası esti."
-          },
-          {
-            text: "Onlarla pazarlık yap, yetkilerini paylaş.",
-            effects: { stability: -2, happiness: +3, economy: +2 },
-            result: "Geçici bir denge sağlandı ama otoriten azaldı."
-          },
-          {
-            text: "Görmezden gel, zamanla dağılır um.",
-            effects: { stability: -6 },
-            result: "Entrikalar büyüdü, tahtın sallanmaya başladı."
-          }
-        ]
-      },
-      {
-        title: "Ticaret Yolları",
-        text: "Bir tüccarlar heyeti, yeni ticaret anlaşmaları teklif ediyor.",
-        choices: [
-          {
-            text: "Ticaret vergilerini düşür, ticareti teşvik et.",
-            effects: { economy: +10, happiness: +4, stability: +2 },
-            result: "Şehrin çarşıları canlandı, hazinen uzun vadede güçlenecek."
-          },
-          {
-            text: "Yüksek vergi koy, kısa sürede gelir elde et.",
-            effects: { economy: +8, happiness: -5 },
-            result: "Tüccarlar homurdansa da hazine sevindi."
-          },
-          {
-            text: "Ticareti kısıtla, içeride üretime odaklan.",
-            effects: { economy: -4, stability: +4 },
-            result: "Dış ticaret azaldı ama iç düzen biraz daha kontrol altında."
-          }
-        ]
-      }
+    const weekdaysTR = [
+      "Pazar",
+      "Pazartesi",
+      "Salı",
+      "Çarşamba",
+      "Perşembe",
+      "Cuma",
+      "Cumartesi"
     ];
 
-    function clamp(value) {
-      if (value < 0) return 0;
-      if (value > 100) return 100;
-      return value;
+    const monthsTR = [
+      "Ocak",
+      "Şubat",
+      "Mart",
+      "Nisan",
+      "Mayıs",
+      "Haziran",
+      "Temmuz",
+      "Ağustos",
+      "Eylül",
+      "Ekim",
+      "Kasım",
+      "Aralık"
+    ];
+
+    const simTime = {
+      date: new Date(2025, 0, 1) // 1 Ocak 2025
+    };
+
+    function formatDateTR(date) {
+      const d = date.getDate();
+      const m = monthsTR[date.getMonth()];
+      const y = date.getFullYear();
+      const weekday = weekdaysTR[date.getDay()];
+      return `${d} ${m} ${y} • ${weekday}`;
     }
 
-    function updateStatsUI() {
-      economyValue.textContent = state.economy;
-      militaryValue.textContent = state.military;
-      happinessValue.textContent = state.happiness;
-      stabilityValue.textContent = state.stability;
-
-      economyBar.style.width = state.economy + "%";
-      militaryBar.style.width = state.military + "%";
-      happinessBar.style.width = state.happiness + "%";
-      stabilityBar.style.width = state.stability + "%";
-
-      [economyBar, militaryBar, happinessBar, stabilityBar].forEach(bar => {
-        const w = parseInt(bar.style.width) || 0;
-        if (w < 25) {
-          bar.style.background = "#ef4444"; // kırmızı
-        } else if (w < 60) {
-          bar.style.background = "#f59e0b"; // turuncu
-        } else {
-          bar.style.background = "#22c55e"; // yeşil
-        }
-      });
-
-      yearSpan.textContent = state.year;
-      turnSpan.textContent = state.turn;
+    function renderDate() {
+      dateDisplay.textContent = formatDateTR(simTime.date);
     }
 
-    function addLogEntry(text) {
+    btnWeek.addEventListener("click", () => {
+      simTime.date.setDate(simTime.date.getDate() + 7);
+      renderDate();
+    });
+
+    btnMonth.addEventListener("click", () => {
+      simTime.date.setMonth(simTime.date.getMonth() + 1);
+      renderDate();
+    });
+
+    renderDate();
+
+    // ---------- DÜNYA HARİTASI (LEAFLET) ----------
+    const map = L.map("map", {
+      worldCopyJump: true
+    }).setView([25, 10], 2); // Dünya görünümü
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      maxZoom: 6,
+      minZoom: 2,
+      attribution: "&copy; OpenStreetMap katkıcıları"
+    }).addTo(map);
+
+    let marker = null;
+    const coordsLabel = document.getElementById("coordsLabel");
+
+    // Basit ülke veritabanı (demo için birkaç ülke)
+    const countriesDB = {
+      TR: {
+        name: "Türkiye",
+        capital: "Ankara",
+        population: "≈ 85 milyon",
+        gdp: "≈ 900 milyar $",
+        region: "Avrupa / Orta Doğu",
+        flavor:
+          "Türkiye, Avrupa ile Asya arasında köprü konumunda, jeopolitik önemi yüksek bir ülkedir."
+      },
+      US: {
+        name: "Amerika Birleşik Devletleri",
+        capital: "Washington, D.C.",
+        population: "≈ 333 milyon",
+        gdp: "≈ 25 trilyon $",
+        region: "Kuzey Amerika",
+        flavor:
+          "ABD, dünyanın en büyük ekonomilerinden biri ve küresel siyaset üzerinde büyük etkiye sahip."
+      },
+      DE: {
+        name: "Almanya",
+        capital: "Berlin",
+        population: "≈ 84 milyon",
+        gdp: "≈ 4 trilyon $",
+        region: "Avrupa",
+        flavor:
+          "Almanya, Avrupa Birliği'nin ekonomik motoru ve sanayi üretiminde dünya çapında bir merkezdir."
+      },
+      RU: {
+        name: "Rusya",
+        capital: "Moskova",
+        population: "≈ 145 milyon",
+        gdp: "≈ 1.8 trilyon $",
+        region: "Avrasya",
+        flavor:
+          "Rusya, geniş toprakları ve enerji kaynakları ile dikkat çeken, tarihsel olarak büyük bir güç."
+      },
+      CN: {
+        name: "Çin",
+        capital: "Pekin",
+        population: "≈ 1.4 milyar",
+        gdp: "≈ 18 trilyon $",
+        region: "Asya",
+        flavor:
+          "Çin, dünyanın en kalabalık ülkesi ve küresel ticaret ağının merkezlerinden biri."
+      }
+    };
+
+    const countryNameEl = document.getElementById("countryName");
+    const countryMetaEl = document.getElementById("countryMeta");
+    const capitalValueEl = document.getElementById("capitalValue");
+    const populationValueEl = document.getElementById("populationValue");
+    const gdpValueEl = document.getElementById("gdpValue");
+    const regionValueEl = document.getElementById("regionValue");
+    const countryBadgeEl = document.getElementById("countryBadge");
+    const btnFocus = document.getElementById("btnFocus");
+    const btnSimulate = document.getElementById("btnSimulate");
+
+    const selectedCountry = {
+      code: null,
+      data: null,
+      latlng: null
+    };
+
+    // Çok kaba bounding box ile ülke tahmini (demo)
+    function detectCountryByLatLng(lat, lng) {
+      // Türkiye
+      if (lat >= 35 && lat <= 43 && lng >= 25 && lng <= 45) {
+        return "TR";
+      }
+      // ABD (kıta)
+      if (lat >= 24 && lat <= 49 && lng >= -125 && lng <= -66) {
+        return "US";
+      }
+      // Almanya
+      if (lat >= 47 && lat <= 55 && lng >= 5 && lng <= 16) {
+        return "DE";
+      }
+      // Rusya (çok kaba)
+      if (lat >= 50 && lat <= 75 && lng >= 30 && lng <= 160) {
+        return "RU";
+      }
+      // Çin (kabaca)
+      if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) {
+        return "CN";
+      }
+      return null;
+    }
+
+    function updateCountryPanel() {
+      if (!selectedCountry.code || !selectedCountry.data) {
+        countryNameEl.textContent = "Henüz ülke seçilmedi";
+        countryMetaEl.textContent = "Haritaya tıklayarak bir bölge seç.";
+        capitalValueEl.textContent = "-";
+        populationValueEl.textContent = "-";
+        gdpValueEl.textContent = "-";
+        regionValueEl.textContent = "-";
+        countryBadgeEl.textContent = "pasif";
+        countryBadgeEl.style.color = "#a5b4fc";
+        return;
+      }
+
+      const c = selectedCountry.data;
+      countryNameEl.textContent = c.name;
+      countryMetaEl.textContent = c.flavor;
+      capitalValueEl.textContent = c.capital;
+      populationValueEl.textContent = c.population;
+      gdpValueEl.textContent = c.gdp;
+      regionValueEl.textContent = c.region;
+      countryBadgeEl.textContent = "aktif";
+      countryBadgeEl.style.color = "#4ade80";
+    }
+
+    map.on("click", (e) => {
+      const { lat, lng } = e.latlng;
+
+      if (marker) {
+        marker.setLatLng(e.latlng);
+      } else {
+        marker = L.marker(e.latlng).addTo(map);
+      }
+
+      coordsLabel.textContent = `Lat: ${lat.toFixed(2)} • Lng: ${lng.toFixed(2)}`;
+
+      const code = detectCountryByLatLng(lat, lng);
+      selectedCountry.latlng = e.latlng;
+
+      if (code && countriesDB[code]) {
+        selectedCountry.code = code;
+        selectedCountry.data = countriesDB[code];
+      } else {
+        selectedCountry.code = null;
+        selectedCountry.data = null;
+      }
+
+      updateCountryPanel();
+      addBotMessageOnCountryChange();
+    });
+
+    btnFocus.addEventListener("click", () => {
+      if (selectedCountry.latlng) {
+        map.setView(selectedCountry.latlng, 5);
+      }
+    });
+
+    btnSimulate.addEventListener("click", () => {
+      if (!selectedCountry.data) {
+        addBotMessage(
+          "Henüz net bir ülke seçmedin. Haritadan Türkiye, ABD, Almanya, Rusya veya Çin çevresine tıklamayı dene."
+        );
+        return;
+      }
+      const c = selectedCountry.data;
+      const msg =
+        `${c.name} için hızlı bir senaryo: ${formatDateTR(simTime.date)} itibarıyla ` +
+        `${c.region} bölgesinde jeopolitik önemi yüksek. Ekonomi seviyesi ${c.gdp} bandında, ` +
+        `nüfus yaklaşık ${c.population}. Oyun içinde bu ülke ile diplomasi, ticaret ve askeri kararlar planlanabilir.`;
+      addBotMessage(msg);
+    });
+
+    // ---------- "AI CHAT" (OFFLINE PROTOTİP) ----------
+    const chatMessagesEl = document.getElementById("chatMessages");
+    const chatInputEl = document.getElementById("chatInput");
+    const chatSendBtn = document.getElementById("chatSendBtn");
+
+    function addChatMessage(role, text) {
       const div = document.createElement("div");
-      div.className = "log-entry";
-      div.innerHTML = text;
-      logDiv.prepend(div);
+      div.className = "chat-msg " + (role === "user" ? "me" : "bot");
+      const roleSpan = document.createElement("span");
+      roleSpan.className = "role";
+      roleSpan.textContent = role === "user" ? "Sen: " : "AI: ";
+      const textSpan = document.createElement("span");
+      textSpan.className = "text";
+      textSpan.textContent = text;
+      div.appendChild(roleSpan);
+      div.appendChild(textSpan);
+      chatMessagesEl.appendChild(div);
+      chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
     }
 
-    function saveGame() {
-      try {
-        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
-      } catch (e) {
-        // sessiz geç
-      }
+    function addBotMessage(text) {
+      addChatMessage("bot", text);
     }
 
-    function clearSave() {
-      try {
-        localStorage.removeItem(SAVE_KEY);
-      } catch (e) {
-        // sessiz geç
-      }
-    }
-
-    function loadGame() {
-      try {
-        const raw = localStorage.getItem(SAVE_KEY);
-        if (!raw) return null;
-        const data = JSON.parse(raw);
-        const required = ["year", "turn", "economy", "military", "happiness", "stability", "alive"];
-        for (const key of required) {
-          if (typeof data[key] === "undefined") return null;
-        }
-        return data;
-      } catch (e) {
-        return null;
-      }
-    }
-
-    function checkGameOver() {
-      if (!state.alive) return true;
-
-      const collapsed =
-        state.economy <= 0 ||
-        state.military <= 0 ||
-        state.happiness <= 0 ||
-        state.stability <= 0;
-
-      if (collapsed) {
-        state.alive = false;
-        const summary = `Toplam ${state.turn} tur dayanabildin, ${state.year}. yıla kadar hüküm sürdün.`;
-        gameOverDiv.style.display = "block";
-        gameOverDiv.innerHTML =
-          "⚠ Devlet çöktü! İç karışıklıklar ve krizler yönetilemedi.<br>" +
-          summary +
-          "<br>Yeni bir kader yazmak için 'Yeniden başla'ya tıkla.";
-        nextTurnBtn.disabled = true;
-        clearSave();
-        return true;
-      }
-
-      if (state.turn > 25) {
-        state.alive = false;
-        const summary = `Toplam ${state.turn - 1} tur boyunca hüküm sürdün, ${state.year - 1}. yıla kadar istikrar sağladın.`;
-        gameOverDiv.style.display = "block";
-        gameOverDiv.innerHTML =
-          "🏆 Tebrikler! On yıllarca hüküm sürdün ve adın kroniklere 'Büyük Hükümdar' olarak geçti.<br>" +
-          summary;
-        nextTurnBtn.disabled = true;
-        clearSave();
-        return true;
-      }
-
-      return false;
-    }
-
-    let currentEvent = null;
-
-    function showRandomEvent() {
-      if (!state.alive) return;
-
-      resultText.textContent = "";
-      gameOverDiv.style.display = "none";
-
-      const event = events[Math.floor(Math.random() * events.length)];
-      currentEvent = event;
-
-      eventTitle.textContent = event.title;
-      eventText.textContent = event.text;
-
-      choicesDiv.innerHTML = "";
-
-      event.choices.forEach(choice => {
-        const btn = document.createElement("button");
-        btn.className = "choice";
-        btn.textContent = choice.text;
-        btn.onclick = () => chooseOption(choice, event.title);
-        choicesDiv.appendChild(btn);
-      });
-    }
-
-    function chooseOption(choice, eventTitleText) {
-      if (!state.alive) return;
-
-      state.economy = clamp(state.economy + (choice.effects.economy || 0));
-      state.military = clamp(state.military + (choice.effects.military || 0));
-      state.happiness = clamp(state.happiness + (choice.effects.happiness || 0));
-      state.stability = clamp(state.stability + (choice.effects.stability || 0));
-
-      resultText.textContent = choice.result;
-
-      addLogEntry(`<strong>[${state.year}] ${eventTitleText}</strong> — ${choice.text}`);
-
-      updateStatsUI();
-
-      if (checkGameOver()) {
-        return;
-      }
-
-      state.year += 1;
-      state.turn += 1;
-      updateStatsUI();
-      saveGame();
-    }
-
-    nextTurnBtn.addEventListener("click", () => {
-      if (state.alive) {
-        showRandomEvent();
-      }
-    });
-
-    restartBtn.addEventListener("click", () => {
-      resetState();
-      saveGame();
-      logDiv.innerHTML = "";
-      resultText.textContent = "";
-      gameOverDiv.style.display = "none";
-      nextTurnBtn.disabled = false;
-      updateStatsUI();
-      showRandomEvent();
-      addLogEntry("<strong>Oyun yeniden başladı.</strong>");
-    });
-
-    function resetState() {
-      state.year = 1453;
-      state.turn = 1;
-      state.economy = 50;
-      state.military = 50;
-      state.happiness = 50;
-      state.stability = 50;
-      state.alive = true;
-    }
-
-    function enterGame(isContinue = false) {
-      startScreen.style.display = "none";
-      gameScreen.style.display = "block";
-      updateStatsUI();
-      if (!isContinue) {
-        logDiv.innerHTML = "";
-        addLogEntry("<strong>Oyun başladı.</strong>");
-        showRandomEvent();
+    function addBotMessageOnCountryChange() {
+      if (!selectedCountry.data) {
+        addBotMessage("Bu koordinasyon tam olarak tanımlı bir ülke alanına düşmüyor. Demo için Türkiye, ABD, Almanya, Rusya veya Çin sınırlarına tıklamayı deneyebilirsin.");
       } else {
-        addLogEntry("<strong>Kaldığın yerden devam ediyorsun.</strong>");
-        showRandomEvent();
+        const c = selectedCountry.data;
+        addBotMessage(
+          `${c.name} seçildi. Başkent: ${c.capital}. Nüfus: ${c.population}. Kısa tanım: ${c.flavor}`
+        );
       }
     }
 
-    // Start screen butonları
-    newGameBtn.addEventListener("click", () => {
-      resetState();
-      saveGame();
-      enterGame(false);
+    function generateAIResponse(input) {
+      const text = input.toLowerCase();
+      const c = selectedCountry.data;
+
+      if (!c) {
+        return "Şu anda belirli bir ülke seçilmedi. Haritadan bir ülke bölgesine tıklayıp sonra tekrar sorabilirsin.";
+      }
+
+      let base = `${c.name} hakkında kısa bir özet: Başkent ${c.capital}, nüfus yaklaşık ${c.population}, ` +
+        `ekonomi kabaca ${c.gdp} seviyesinde ve ${c.region} bölgesinde yer alıyor. ${c.flavor} `;
+
+      if (text.includes("nüfus")) {
+        return `${c.name} için demo nüfus değeri: ${c.population}. Gerçek oyunda bu sayı yıl yıl değişen dinamik bir değişken olacak.`;
+      }
+
+      if (text.includes("ekonomi") || text.includes("gsyih") || text.includes("para")) {
+        return `${c.name} ekonomisi prototipte ${c.gdp} bandında modelleniyor. İleride; vergi, ticaret, üretim ve savaş kararların bu değeri dinamik olarak değiştirecek.`;
+      }
+
+      if (text.includes("başkent") || text.includes("capital") || text.includes("yönetim")) {
+        return `${c.name} için kaydedilen başkent: ${c.capital}. Olası oyun mekaniği: başkenti kaybedersen ciddi istikrar ve moral cezası alırsın.`;
+      }
+
+      if (text.includes("bölge") || text.includes("jeopolitik") || text.includes("konum")) {
+        return `${c.name}, ${c.region} bölgesinde yer alıyor. Jeopolitik önemi: ${c.flavor}`;
+      }
+
+      if (text.includes("senaryo") || text.includes("olay") || text.includes("event")) {
+        return `Örnek bir olay: ${formatDateTR(simTime.date)} tarihinde ${c.name} için diplomasi krizleri, ticaret anlaşmaları ve sınır gerginlikleri üretilebilir. Bu prototipte butonla basit senaryolar üretiyoruz.`;
+      }
+
+      return base + "Soruna özel detaylı model henüz tam bağlı değil, ama bu alan ileride gerçek AI API'lerine bağlanacak.";
+    }
+
+    function handleChatSend() {
+      const value = chatInputEl.value.trim();
+      if (!value) return;
+      addChatMessage("user", value);
+      chatInputEl.value = "";
+      const response = generateAIResponse(value);
+      setTimeout(() => {
+        addBotMessage(response);
+      }, 150);
+    }
+
+    chatSendBtn.addEventListener("click", handleChatSend);
+    chatInputEl.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        handleChatSend();
+      }
     });
 
-    continueBtn.addEventListener("click", () => {
-      const loaded = loadGame();
-      if (!loaded) {
-        // kayıt yoksa butonu gizle
-        continueBtn.style.display = "none";
-        return;
-      }
-      Object.assign(state, loaded);
-      enterGame(true);
-    });
-
-    // İlk açılış: kayıt var mı kontrol et
-    (function init() {
-      updateStatsUI();
-      const saved = loadGame();
-      if (saved && saved.alive) {
-        continueBtn.style.display = "block";
-      } else {
-        continueBtn.style.display = "none";
-      }
-    })();
+    // Başlangıç mesajı
+    addBotMessage(
+      "tarihsenaryosu_ai prototipine hoş geldin. Haritadan bir ülke bölgesine tıkla, sonra sağdaki panelden ülke bilgisi ve senaryoları dene. Chat kısmına 'Türkiye nüfus', 'ekonomi durumu', 'senaryo' gibi şeyler yazabilirsin."
+    );
   </script>
 </body>
 </html>
