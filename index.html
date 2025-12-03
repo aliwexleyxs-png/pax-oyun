@@ -2,7 +2,7 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8">
-  <title>Pax Anatolia - Tek Kişilik Strateji</title>
+  <title>TarihSenaryosu_AI - Tek Kişilik Strateji</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     * {
@@ -30,6 +30,92 @@
       width: 100%;
       box-shadow: 0 20px 50px rgba(0,0,0,0.6);
       border: 1px solid #1f2937;
+    }
+
+    /* START SCREEN */
+    .start-screen {
+      text-align: center;
+      padding: 24px 10px;
+    }
+
+    .start-title {
+      font-size: 1.6rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .start-subtitle {
+      font-size: 0.95rem;
+      color: #9ca3af;
+      margin-bottom: 18px;
+    }
+
+    .start-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.8rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: #111827;
+      border: 1px solid #1f2937;
+      margin-bottom: 10px;
+      color: #a5b4fc;
+    }
+
+    .start-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 9px 14px;
+      border: 1px solid #1f2937;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: transform 0.1s, box-shadow 0.1s, border-color 0.15s, background 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #e5e7eb;
+      border-color: #4f46e5;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 10px 25px rgba(79,70,229,0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      border-color: #4b5563;
+      transform: translateY(-1px);
+    }
+
+    .start-hint {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .start-footer {
+      margin-top: 12px;
+      font-size: 0.75rem;
+      color: #4b5563;
+    }
+
+    /* GAME SCREEN */
+    #gameScreen {
+      display: none;
     }
 
     .header {
@@ -126,7 +212,7 @@
       text-align: left;
       font-size: 0.9rem;
       color: #e5e7eb;
-      transition: transform 0.1s, box-shadow 0.1s, border-color 0.2s;
+      transition: transform 0.1s, box-shadow 0.1s, border-color 0.2s, background 0.15s;
     }
 
     button.choice:hover {
@@ -138,25 +224,6 @@
     button.choice:active {
       transform: translateY(0);
       box-shadow: none;
-    }
-
-    .log {
-      background: #020617;
-      border-radius: 10px;
-      padding: 10px;
-      font-size: 0.8rem;
-      max-height: 140px;
-      overflow-y: auto;
-      border: 1px solid #111827;
-    }
-
-    .log-entry {
-      margin-bottom: 4px;
-      color: #9ca3af;
-    }
-
-    .log-entry strong {
-      color: #e5e7eb;
     }
 
     .result {
@@ -196,6 +263,25 @@
       border-color: #4b5563;
     }
 
+    .log {
+      background: #020617;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.8rem;
+      max-height: 140px;
+      overflow-y: auto;
+      border: 1px solid #111827;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+
+    .log-entry strong {
+      color: #e5e7eb;
+    }
+
     @media (max-width: 600px) {
       .stats {
         grid-template-columns: repeat(2, 1fr);
@@ -208,59 +294,89 @@
 </head>
 <body>
   <div class="game">
-    <div class="header">
-      <div class="title">📜 Pax Anatolia</div>
-      <div class="turn-info">
-        Yıl: <span id="year">1453</span><br>
-        Tur: <span id="turn">1</span>
+    <!-- START SCREEN -->
+    <div id="startScreen" class="start-screen">
+      <div class="start-badge">
+        <span>🧠</span>
+        <span>tarihsenaryosu_ai • prototip</span>
+      </div>
+      <div class="start-title">📜 Tarih Senaryosu</div>
+      <div class="start-subtitle">
+        Tek kişilik bir strateji simülasyonunda kendi devletini yönet.  
+        Her karar; ekonomi, ordu, halk ve istikrarı değiştirecek.
+      </div>
+
+      <div class="start-buttons">
+        <button id="newGameBtn" class="btn btn-primary">Yeni oyun başlat</button>
+        <button id="continueBtn" class="btn btn-secondary">Kaldığım yerden devam et</button>
+      </div>
+
+      <div class="start-hint">
+        İlerleyişin tarayıcına kaydedilir. Sayfayı kapatsan bile geri dönebilirsin.
+      </div>
+      <div class="start-footer">
+        v0.1 • mekanikler deneme aşamasında
       </div>
     </div>
 
-    <div class="stats">
-      <div class="stat">
-        <div class="stat-label">Ekonomi</div>
-        <div class="stat-value" id="economyValue">50</div>
-        <div class="bar"><div class="bar-fill" id="economyBar"></div></div>
+    <!-- GAME SCREEN -->
+    <div id="gameScreen">
+      <div class="header">
+        <div class="title">📜 TarihSenaryosu_AI</div>
+        <div class="turn-info">
+          Yıl: <span id="year">1453</span><br>
+          Tur: <span id="turn">1</span>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Ordu</div>
-        <div class="stat-value" id="militaryValue">50</div>
-        <div class="bar"><div class="bar-fill" id="militaryBar"></div></div>
+
+      <div class="stats">
+        <div class="stat">
+          <div class="stat-label">Ekonomi</div>
+          <div class="stat-value" id="economyValue">50</div>
+          <div class="bar"><div class="bar-fill" id="economyBar"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Ordu</div>
+          <div class="stat-value" id="militaryValue">50</div>
+          <div class="bar"><div class="bar-fill" id="militaryBar"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Halk Mutluluğu</div>
+          <div class="stat-value" id="happinessValue">50</div>
+          <div class="bar"><div class="bar-fill" id="happinessBar"></div></div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">İstikrar</div>
+          <div class="stat-value" id="stabilityValue">50</div>
+          <div class="bar"><div class="bar-fill" id="stabilityBar"></div></div>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-label">Halk Mutluluğu</div>
-        <div class="stat-value" id="happinessValue">50</div>
-        <div class="bar"><div class="bar-fill" id="happinessBar"></div></div>
+
+      <div class="event-box">
+        <div class="event-title" id="eventTitle">Yeni hükümdarsın!</div>
+        <div class="event-text" id="eventText">
+          Anadolu'da yeni bir devletin başına geçtin. Verdiğin her karar, tarihin akışını değiştirecek.
+        </div>
+
+        <div class="choices" id="choices"></div>
+
+        <div class="result" id="resultText"></div>
+
+        <div class="game-over" id="gameOver" style="display:none;"></div>
+
+        <div class="btn-row">
+          <button class="small-btn" id="nextTurnBtn">Sonraki olayı getir</button>
+          <button class="small-btn" id="restartBtn">Yeniden başla</button>
+        </div>
       </div>
-      <div class="stat">
-        <div class="stat-label">İstikrar</div>
-        <div class="stat-value" id="stabilityValue">50</div>
-        <div class="bar"><div class="bar-fill" id="stabilityBar"></div></div>
-      </div>
+
+      <div class="log" id="log"></div>
     </div>
-
-    <div class="event-box">
-      <div class="event-title" id="eventTitle">Yeni hükümdarsın!</div>
-      <div class="event-text" id="eventText">
-        Anadolu'da yeni bir devletin başına geçtin. Verdiğin her karar, tarihin akışını değiştirecek.
-      </div>
-
-      <div class="choices" id="choices"></div>
-
-      <div class="result" id="resultText"></div>
-
-      <div class="game-over" id="gameOver" style="display:none;"></div>
-
-      <div class="btn-row">
-        <button class="small-btn" id="nextTurnBtn">Sonraki olayı getir</button>
-        <button class="small-btn" id="restartBtn">Yeniden başla</button>
-      </div>
-    </div>
-
-    <div class="log" id="log"></div>
   </div>
 
   <script>
+    const SAVE_KEY = "tarihSenaryosu_ai_save";
+
     // Oyun durumu
     const state = {
       year: 1453,
@@ -272,7 +388,36 @@
       alive: true
     };
 
-    // Olay havuzu
+    // DOM referansları
+    const startScreen = document.getElementById("startScreen");
+    const gameScreen = document.getElementById("gameScreen");
+    const newGameBtn = document.getElementById("newGameBtn");
+    const continueBtn = document.getElementById("continueBtn");
+
+    const yearSpan = document.getElementById("year");
+    const turnSpan = document.getElementById("turn");
+
+    const economyValue = document.getElementById("economyValue");
+    const militaryValue = document.getElementById("militaryValue");
+    const happinessValue = document.getElementById("happinessValue");
+    const stabilityValue = document.getElementById("stabilityValue");
+
+    const economyBar = document.getElementById("economyBar");
+    const militaryBar = document.getElementById("militaryBar");
+    const happinessBar = document.getElementById("happinessBar");
+    const stabilityBar = document.getElementById("stabilityBar");
+
+    const eventTitle = document.getElementById("eventTitle");
+    const eventText = document.getElementById("eventText");
+    const choicesDiv = document.getElementById("choices");
+    const resultText = document.getElementById("resultText");
+    const logDiv = document.getElementById("log");
+    const gameOverDiv = document.getElementById("gameOver");
+
+    const nextTurnBtn = document.getElementById("nextTurnBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    // Olay havuzu (aynı)
     const events = [
       {
         title: "Vergi Reformu",
@@ -402,29 +547,6 @@
       }
     ];
 
-    const yearSpan = document.getElementById("year");
-    const turnSpan = document.getElementById("turn");
-
-    const economyValue = document.getElementById("economyValue");
-    const militaryValue = document.getElementById("militaryValue");
-    const happinessValue = document.getElementById("happinessValue");
-    const stabilityValue = document.getElementById("stabilityValue");
-
-    const economyBar = document.getElementById("economyBar");
-    const militaryBar = document.getElementById("militaryBar");
-    const happinessBar = document.getElementById("happinessBar");
-    const stabilityBar = document.getElementById("stabilityBar");
-
-    const eventTitle = document.getElementById("eventTitle");
-    const eventText = document.getElementById("eventText");
-    const choicesDiv = document.getElementById("choices");
-    const resultText = document.getElementById("resultText");
-    const logDiv = document.getElementById("log");
-    const gameOverDiv = document.getElementById("gameOver");
-
-    const nextTurnBtn = document.getElementById("nextTurnBtn");
-    const restartBtn = document.getElementById("restartBtn");
-
     function clamp(value) {
       if (value < 0) return 0;
       if (value > 100) return 100;
@@ -442,9 +564,8 @@
       happinessBar.style.width = state.happiness + "%";
       stabilityBar.style.width = state.stability + "%";
 
-      // Renkleri durumlara göre ayarla (basit)
       [economyBar, militaryBar, happinessBar, stabilityBar].forEach(bar => {
-        const w = parseInt(bar.style.width);
+        const w = parseInt(bar.style.width) || 0;
         if (w < 25) {
           bar.style.background = "#ef4444"; // kırmızı
         } else if (w < 60) {
@@ -465,27 +586,75 @@
       logDiv.prepend(div);
     }
 
+    function saveGame() {
+      try {
+        localStorage.setItem(SAVE_KEY, JSON.stringify(state));
+      } catch (e) {
+        // sessiz geç
+      }
+    }
+
+    function clearSave() {
+      try {
+        localStorage.removeItem(SAVE_KEY);
+      } catch (e) {
+        // sessiz geç
+      }
+    }
+
+    function loadGame() {
+      try {
+        const raw = localStorage.getItem(SAVE_KEY);
+        if (!raw) return null;
+        const data = JSON.parse(raw);
+        const required = ["year", "turn", "economy", "military", "happiness", "stability", "alive"];
+        for (const key of required) {
+          if (typeof data[key] === "undefined") return null;
+        }
+        return data;
+      } catch (e) {
+        return null;
+      }
+    }
+
     function checkGameOver() {
       if (!state.alive) return true;
 
-      if (state.economy <= 0 || state.military <= 0 || state.happiness <= 0 || state.stability <= 0) {
+      const collapsed =
+        state.economy <= 0 ||
+        state.military <= 0 ||
+        state.happiness <= 0 ||
+        state.stability <= 0;
+
+      if (collapsed) {
         state.alive = false;
+        const summary = `Toplam ${state.turn} tur dayanabildin, ${state.year}. yıla kadar hüküm sürdün.`;
         gameOverDiv.style.display = "block";
-        gameOverDiv.textContent = "Devlet çöktü! Tarih sayfalarında kısa bir iz bıraktın...";
+        gameOverDiv.innerHTML =
+          "⚠ Devlet çöktü! İç karışıklıklar ve krizler yönetilemedi.<br>" +
+          summary +
+          "<br>Yeni bir kader yazmak için 'Yeniden başla'ya tıkla.";
         nextTurnBtn.disabled = true;
+        clearSave();
         return true;
       }
 
       if (state.turn > 25) {
         state.alive = false;
+        const summary = `Toplam ${state.turn - 1} tur boyunca hüküm sürdün, ${state.year - 1}. yıla kadar istikrar sağladın.`;
         gameOverDiv.style.display = "block";
-        gameOverDiv.textContent = "Tebrikler! On yıllarca hüküm sürdün ve adın kroniklere 'Büyük Hükümdar' olarak geçti.";
+        gameOverDiv.innerHTML =
+          "🏆 Tebrikler! On yıllarca hüküm sürdün ve adın kroniklere 'Büyük Hükümdar' olarak geçti.<br>" +
+          summary;
         nextTurnBtn.disabled = true;
+        clearSave();
         return true;
       }
 
       return false;
     }
+
+    let currentEvent = null;
 
     function showRandomEvent() {
       if (!state.alive) return;
@@ -501,7 +670,7 @@
 
       choicesDiv.innerHTML = "";
 
-      event.choices.forEach((choice, index) => {
+      event.choices.forEach(choice => {
         const btn = document.createElement("button");
         btn.className = "choice";
         btn.textContent = choice.text;
@@ -510,12 +679,9 @@
       });
     }
 
-    let currentEvent = null;
-
     function chooseOption(choice, eventTitleText) {
       if (!state.alive) return;
 
-      // Etkileri uygula
       state.economy = clamp(state.economy + (choice.effects.economy || 0));
       state.military = clamp(state.military + (choice.effects.military || 0));
       state.happiness = clamp(state.happiness + (choice.effects.happiness || 0));
@@ -527,11 +693,14 @@
 
       updateStatsUI();
 
-      if (!checkGameOver()) {
-        // Her olaydan sonra yıl ve tur ilerlesin
-        state.year += 1;
-        state.turn += 1;
+      if (checkGameOver()) {
+        return;
       }
+
+      state.year += 1;
+      state.turn += 1;
+      updateStatsUI();
+      saveGame();
     }
 
     nextTurnBtn.addEventListener("click", () => {
@@ -541,13 +710,8 @@
     });
 
     restartBtn.addEventListener("click", () => {
-      state.year = 1453;
-      state.turn = 1;
-      state.economy = 50;
-      state.military = 50;
-      state.happiness = 50;
-      state.stability = 50;
-      state.alive = true;
+      resetState();
+      saveGame();
       logDiv.innerHTML = "";
       resultText.textContent = "";
       gameOverDiv.style.display = "none";
@@ -557,9 +721,58 @@
       addLogEntry("<strong>Oyun yeniden başladı.</strong>");
     });
 
-    // Başlangıç
-    updateStatsUI();
-    showRandomEvent();
+    function resetState() {
+      state.year = 1453;
+      state.turn = 1;
+      state.economy = 50;
+      state.military = 50;
+      state.happiness = 50;
+      state.stability = 50;
+      state.alive = true;
+    }
+
+    function enterGame(isContinue = false) {
+      startScreen.style.display = "none";
+      gameScreen.style.display = "block";
+      updateStatsUI();
+      if (!isContinue) {
+        logDiv.innerHTML = "";
+        addLogEntry("<strong>Oyun başladı.</strong>");
+        showRandomEvent();
+      } else {
+        addLogEntry("<strong>Kaldığın yerden devam ediyorsun.</strong>");
+        showRandomEvent();
+      }
+    }
+
+    // Start screen butonları
+    newGameBtn.addEventListener("click", () => {
+      resetState();
+      saveGame();
+      enterGame(false);
+    });
+
+    continueBtn.addEventListener("click", () => {
+      const loaded = loadGame();
+      if (!loaded) {
+        // kayıt yoksa butonu gizle
+        continueBtn.style.display = "none";
+        return;
+      }
+      Object.assign(state, loaded);
+      enterGame(true);
+    });
+
+    // İlk açılış: kayıt var mı kontrol et
+    (function init() {
+      updateStatsUI();
+      const saved = loadGame();
+      if (saved && saved.alive) {
+        continueBtn.style.display = "block";
+      } else {
+        continueBtn.style.display = "none";
+      }
+    })();
   </script>
 </body>
 </html>
