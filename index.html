@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <title>Pax Anatolia - Tek Kişilik Strateji</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      background: #0f172a;
+      color: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 16px;
+    }
+
+    .game {
+      background: #020617;
+      border-radius: 16px;
+      padding: 20px;
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      border: 1px solid #1f2937;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .title {
+      font-size: 1.4rem;
+      font-weight: 700;
+    }
+
+    .turn-info {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      text-align: right;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .stat {
+      background: #020617;
+      border-radius: 10px;
+      padding: 8px;
+      border: 1px solid #1f2937;
+    }
+
+    .stat-label {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .bar {
+      width: 100%;
+      height: 6px;
+      border-radius: 999px;
+      background: #111827;
+      margin-top: 4px;
+      overflow: hidden;
+    }
+
+    .bar-fill {
+      height: 100%;
+      background: #22c55e;
+      transition: width 0.3s;
+    }
+
+    .event-box {
+      background: linear-gradient(135deg, #020617, #020617, #0b1120);
+      border-radius: 12px;
+      padding: 14px;
+      border: 1px solid #1f2937;
+      margin-bottom: 16px;
+    }
+
+    .event-title {
+      font-weight: 600;
+      margin-bottom: 6px;
+      font-size: 1.05rem;
+    }
+
+    .event-text {
+      font-size: 0.95rem;
+      color: #d1d5db;
+    }
+
+    .choices {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+      margin-top: 10px;
+    }
+
+    button.choice {
+      background: #111827;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 8px 12px;
+      cursor: pointer;
+      text-align: left;
+      font-size: 0.9rem;
+      color: #e5e7eb;
+      transition: transform 0.1s, box-shadow 0.1s, border-color 0.2s;
+    }
+
+    button.choice:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+      border-color: #6366f1;
+    }
+
+    button.choice:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .log {
+      background: #020617;
+      border-radius: 10px;
+      padding: 10px;
+      font-size: 0.8rem;
+      max-height: 140px;
+      overflow-y: auto;
+      border: 1px solid #111827;
+    }
+
+    .log-entry {
+      margin-bottom: 4px;
+      color: #9ca3af;
+    }
+
+    .log-entry strong {
+      color: #e5e7eb;
+    }
+
+    .result {
+      font-size: 0.9rem;
+      margin-bottom: 6px;
+      color: #a5b4fc;
+    }
+
+    .game-over {
+      text-align: center;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed #1f2937;
+      font-size: 0.95rem;
+    }
+
+    .btn-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .small-btn {
+      flex: 1;
+      background: #020617;
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-align: center;
+    }
+
+    .small-btn:hover {
+      border-color: #4b5563;
+    }
+
+    @media (max-width: 600px) {
+      .stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .title {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="header">
+      <div class="title">📜 Pax Anatolia</div>
+      <div class="turn-info">
+        Yıl: <span id="year">1453</span><br>
+        Tur: <span id="turn">1</span>
+      </div>
+    </div>
+
+    <div class="stats">
+      <div class="stat">
+        <div class="stat-label">Ekonomi</div>
+        <div class="stat-value" id="economyValue">50</div>
+        <div class="bar"><div class="bar-fill" id="economyBar"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Ordu</div>
+        <div class="stat-value" id="militaryValue">50</div>
+        <div class="bar"><div class="bar-fill" id="militaryBar"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Halk Mutluluğu</div>
+        <div class="stat-value" id="happinessValue">50</div>
+        <div class="bar"><div class="bar-fill" id="happinessBar"></div></div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">İstikrar</div>
+        <div class="stat-value" id="stabilityValue">50</div>
+        <div class="bar"><div class="bar-fill" id="stabilityBar"></div></div>
+      </div>
+    </div>
+
+    <div class="event-box">
+      <div class="event-title" id="eventTitle">Yeni hükümdarsın!</div>
+      <div class="event-text" id="eventText">
+        Anadolu'da yeni bir devletin başına geçtin. Verdiğin her karar, tarihin akışını değiştirecek.
+      </div>
+
+      <div class="choices" id="choices"></div>
+
+      <div class="result" id="resultText"></div>
+
+      <div class="game-over" id="gameOver" style="display:none;"></div>
+
+      <div class="btn-row">
+        <button class="small-btn" id="nextTurnBtn">Sonraki olayı getir</button>
+        <button class="small-btn" id="restartBtn">Yeniden başla</button>
+      </div>
+    </div>
+
+    <div class="log" id="log"></div>
+  </div>
+
+  <script>
+    // Oyun durumu
+    const state = {
+      year: 1453,
+      turn: 1,
+      economy: 50,
+      military: 50,
+      happiness: 50,
+      stability: 50,
+      alive: true
+    };
+
+    // Olay havuzu
+    const events = [
+      {
+        title: "Vergi Reformu",
+        text: "Hazine boşalmak üzere. Danışmanların vergi sistemini değiştirmeyi öneriyor.",
+        choices: [
+          {
+            text: "Zenginlerin vergisini artır.",
+            effects: { economy: +5, happiness: -5, stability: -2 },
+            result: "Hazine biraz doldu ama elit kesim homurdanmaya başladı."
+          },
+          {
+            text: "Halktan ek vergi al.",
+            effects: { economy: +8, happiness: -10, stability: -5 },
+            result: "Kısa vadede hazine doldu fakat halkın öfkesi büyüyor."
+          },
+          {
+            text: "Vergi sistemine dokunma.",
+            effects: { economy: 0, happiness: +3, stability: +2 },
+            result: "Kimseyi kızdırmadın ama sorunlar ertelendi."
+          }
+        ]
+      },
+      {
+        title: "Orduya Yatırım",
+        text: "Sınırda komşu devletin orduyu güçlendirdiği haberi geliyor.",
+        choices: [
+          {
+            text: "Ordunun sayısını artır.",
+            effects: { military: +10, economy: -7, stability: +2 },
+            result: "Ordu güçlendi ama bütçe zorlandı."
+          },
+          {
+            text: "Yeni bir kale inşa et.",
+            effects: { military: +7, economy: -5, stability: +3 },
+            result: "Savunma güvence altında, halk kendini daha güvende hissediyor."
+          },
+          {
+            text: "Hiçbir şey yapma, izlemeye devam et.",
+            effects: { military: 0, stability: -4 },
+            result: "Komşu devlet cesaretlendi, sarayda endişe arttı."
+          }
+        ]
+      },
+      {
+        title: "Kıtlık Tehlikesi",
+        text: "Bu sene yağışlar az oldu. Kıtlık ihtimali konuşuluyor.",
+        choices: [
+          {
+            text: "Depolardaki tahılı halka dağıt.",
+            effects: { happiness: +10, economy: -8, stability: +3 },
+            result: "Halk seni sevgiyle anıyor ama hazine zorlandı."
+          },
+          {
+            text: "Tahılı yüksek fiyata sat.",
+            effects: { economy: +12, happiness: -12, stability: -4 },
+            result: "Hazine doldu ama aç kalanlar isyan etmeye başladı."
+          },
+          {
+            text: "Komşu devletten tahıl satın al.",
+            effects: { economy: -5, happiness: +4, stability: +1 },
+            result: "Açlık hafifledi, dışa bağımlılık biraz arttı."
+          }
+        ]
+      },
+      {
+        title: "Medrese Açılması",
+        text: "Âlimler, şehirde yeni bir medrese açılması için destek istiyor.",
+        choices: [
+          {
+            text: "Medreseyi devlet bütçesinden finanse et.",
+            effects: { economy: -5, stability: +6, happiness: +4 },
+            result: "Bilim ve ilim gelişti, toplumda itibarın arttı."
+          },
+          {
+            text: "Zenginlerden bağış toplanmasını emret.",
+            effects: { economy: 0, happiness: +2, stability: +2 },
+            result: "Halk memnun, zenginler ince bir sitemde bulundu."
+          },
+          {
+            text: "Bu sene bütçe yok, erteleyin.",
+            effects: { stability: -3, happiness: -2 },
+            result: "Âlimler kırıldı, itibarın biraz zedelendi."
+          }
+        ]
+      },
+      {
+        title: "Saray Entrikası",
+        text: "Saray içinde bazı vezirlerin sana karşı gizli ittifak kurduğu söyleniyor.",
+        choices: [
+          {
+            text: "Soruşturma aç ve suçluları cezalandır.",
+            effects: { stability: +5, happiness: -3 },
+            result: "İhanet bastırıldı ama sarayda korku havası esti."
+          },
+          {
+            text: "Onlarla pazarlık yap, yetkilerini paylaş.",
+            effects: { stability: -2, happiness: +3, economy: +2 },
+            result: "Geçici bir denge sağlandı ama otoriten azaldı."
+          },
+          {
+            text: "Görmezden gel, zamanla dağılır um.",
+            effects: { stability: -6 },
+            result: "Entrikalar büyüdü, tahtın sallanmaya başladı."
+          }
+        ]
+      },
+      {
+        title: "Ticaret Yolları",
+        text: "Bir tüccarlar heyeti, yeni ticaret anlaşmaları teklif ediyor.",
+        choices: [
+          {
+            text: "Ticaret vergilerini düşür, ticareti teşvik et.",
+            effects: { economy: +10, happiness: +4, stability: +2 },
+            result: "Şehrin çarşıları canlandı, hazinen uzun vadede güçlenecek."
+          },
+          {
+            text: "Yüksek vergi koy, kısa sürede gelir elde et.",
+            effects: { economy: +8, happiness: -5 },
+            result: "Tüccarlar homurdansa da hazine sevindi."
+          },
+          {
+            text: "Ticareti kısıtla, içeride üretime odaklan.",
+            effects: { economy: -4, stability: +4 },
+            result: "Dış ticaret azaldı ama iç düzen biraz daha kontrol altında."
+          }
+        ]
+      }
+    ];
+
+    const yearSpan = document.getElementById("year");
+    const turnSpan = document.getElementById("turn");
+
+    const economyValue = document.getElementById("economyValue");
+    const militaryValue = document.getElementById("militaryValue");
+    const happinessValue = document.getElementById("happinessValue");
+    const stabilityValue = document.getElementById("stabilityValue");
+
+    const economyBar = document.getElementById("economyBar");
+    const militaryBar = document.getElementById("militaryBar");
+    const happinessBar = document.getElementById("happinessBar");
+    const stabilityBar = document.getElementById("stabilityBar");
+
+    const eventTitle = document.getElementById("eventTitle");
+    const eventText = document.getElementById("eventText");
+    const choicesDiv = document.getElementById("choices");
+    const resultText = document.getElementById("resultText");
+    const logDiv = document.getElementById("log");
+    const gameOverDiv = document.getElementById("gameOver");
+
+    const nextTurnBtn = document.getElementById("nextTurnBtn");
+    const restartBtn = document.getElementById("restartBtn");
+
+    function clamp(value) {
+      if (value < 0) return 0;
+      if (value > 100) return 100;
+      return value;
+    }
+
+    function updateStatsUI() {
+      economyValue.textContent = state.economy;
+      militaryValue.textContent = state.military;
+      happinessValue.textContent = state.happiness;
+      stabilityValue.textContent = state.stability;
+
+      economyBar.style.width = state.economy + "%";
+      militaryBar.style.width = state.military + "%";
+      happinessBar.style.width = state.happiness + "%";
+      stabilityBar.style.width = state.stability + "%";
+
+      // Renkleri durumlara göre ayarla (basit)
+      [economyBar, militaryBar, happinessBar, stabilityBar].forEach(bar => {
+        const w = parseInt(bar.style.width);
+        if (w < 25) {
+          bar.style.background = "#ef4444"; // kırmızı
+        } else if (w < 60) {
+          bar.style.background = "#f59e0b"; // turuncu
+        } else {
+          bar.style.background = "#22c55e"; // yeşil
+        }
+      });
+
+      yearSpan.textContent = state.year;
+      turnSpan.textContent = state.turn;
+    }
+
+    function addLogEntry(text) {
+      const div = document.createElement("div");
+      div.className = "log-entry";
+      div.innerHTML = text;
+      logDiv.prepend(div);
+    }
+
+    function checkGameOver() {
+      if (!state.alive) return true;
+
+      if (state.economy <= 0 || state.military <= 0 || state.happiness <= 0 || state.stability <= 0) {
+        state.alive = false;
+        gameOverDiv.style.display = "block";
+        gameOverDiv.textContent = "Devlet çöktü! Tarih sayfalarında kısa bir iz bıraktın...";
+        nextTurnBtn.disabled = true;
+        return true;
+      }
+
+      if (state.turn > 25) {
+        state.alive = false;
+        gameOverDiv.style.display = "block";
+        gameOverDiv.textContent = "Tebrikler! On yıllarca hüküm sürdün ve adın kroniklere 'Büyük Hükümdar' olarak geçti.";
+        nextTurnBtn.disabled = true;
+        return true;
+      }
+
+      return false;
+    }
+
+    function showRandomEvent() {
+      if (!state.alive) return;
+
+      resultText.textContent = "";
+      gameOverDiv.style.display = "none";
+
+      const event = events[Math.floor(Math.random() * events.length)];
+      currentEvent = event;
+
+      eventTitle.textContent = event.title;
+      eventText.textContent = event.text;
+
+      choicesDiv.innerHTML = "";
+
+      event.choices.forEach((choice, index) => {
+        const btn = document.createElement("button");
+        btn.className = "choice";
+        btn.textContent = choice.text;
+        btn.onclick = () => chooseOption(choice, event.title);
+        choicesDiv.appendChild(btn);
+      });
+    }
+
+    let currentEvent = null;
+
+    function chooseOption(choice, eventTitleText) {
+      if (!state.alive) return;
+
+      // Etkileri uygula
+      state.economy = clamp(state.economy + (choice.effects.economy || 0));
+      state.military = clamp(state.military + (choice.effects.military || 0));
+      state.happiness = clamp(state.happiness + (choice.effects.happiness || 0));
+      state.stability = clamp(state.stability + (choice.effects.stability || 0));
+
+      resultText.textContent = choice.result;
+
+      addLogEntry(`<strong>[${state.year}] ${eventTitleText}</strong> — ${choice.text}`);
+
+      updateStatsUI();
+
+      if (!checkGameOver()) {
+        // Her olaydan sonra yıl ve tur ilerlesin
+        state.year += 1;
+        state.turn += 1;
+      }
+    }
+
+    nextTurnBtn.addEventListener("click", () => {
+      if (state.alive) {
+        showRandomEvent();
+      }
+    });
+
+    restartBtn.addEventListener("click", () => {
+      state.year = 1453;
+      state.turn = 1;
+      state.economy = 50;
+      state.military = 50;
+      state.happiness = 50;
+      state.stability = 50;
+      state.alive = true;
+      logDiv.innerHTML = "";
+      resultText.textContent = "";
+      gameOverDiv.style.display = "none";
+      nextTurnBtn.disabled = false;
+      updateStatsUI();
+      showRandomEvent();
+      addLogEntry("<strong>Oyun yeniden başladı.</strong>");
+    });
+
+    // Başlangıç
+    updateStatsUI();
+    showRandomEvent();
+  </script>
+</body>
+</html>
