@@ -47,6 +47,8 @@
       flex-direction: column;
       padding: 12px;
       gap: 10px;
+      position: relative;
+      overflow: hidden;
     }
 
     .top-bar {
@@ -73,6 +75,11 @@
     .logo-sub {
       font-size: 0.75rem;
       color: #9ca3af;
+    }
+
+    .player-tag {
+      font-size: 0.78rem;
+      color: #a5b4fc;
     }
 
     .time-controls {
@@ -152,6 +159,10 @@
       justify-content: space-between;
       align-items: center;
       background: #020617;
+    }
+
+    .map-footer strong {
+      color: #e5e7eb;
     }
 
     .right-panel {
@@ -246,12 +257,49 @@
       background: #030712;
     }
 
+    /* Diplomasi kartı */
+    .relation-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .relation-main {
+      font-size: 0.82rem;
+      margin-bottom: 6px;
+    }
+
+    .relation-main strong {
+      color: #e5e7eb;
+    }
+
+    .relation-actions {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 6px;
+    }
+
+    .relation-log {
+      border-radius: 8px;
+      border: 1px solid #111827;
+      background: #020617;
+      padding: 6px;
+      font-size: 0.75rem;
+      max-height: 100px;
+      overflow-y: auto;
+      color: #9ca3af;
+    }
+
+    .relation-entry {
+      margin-bottom: 4px;
+    }
+
     /* Chat */
     .chat-container {
       display: flex;
       flex-direction: column;
       height: 100%;
-      max-height: 280px;
+      max-height: 260px;
     }
 
     .chat-messages {
@@ -329,6 +377,106 @@
       box-shadow: none;
     }
 
+    /* Ülke seçme overlay */
+    .overlay {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95), rgba(3,7,18,0.98));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 20;
+    }
+
+    .overlay-inner {
+      width: 100%;
+      max-width: 480px;
+      background: #020617;
+      border-radius: 16px;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      box-shadow: 0 30px 60px rgba(0,0,0,0.9);
+    }
+
+    .overlay-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .overlay-sub {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .overlay-row {
+      margin-bottom: 10px;
+    }
+
+    .overlay-label {
+      font-size: 0.8rem;
+      color: #9ca3af;
+      margin-bottom: 4px;
+    }
+
+    .overlay-select {
+      width: 100%;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid #111827;
+      background: #020617;
+      color: #e5e7eb;
+      font-size: 0.83rem;
+      outline: none;
+    }
+
+    .overlay-select:focus {
+      border-color: #4f46e5;
+    }
+
+    .overlay-buttons {
+      display: flex;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .btn {
+      border-radius: 999px;
+      padding: 8px 14px;
+      border: 1px solid #1f2937;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: transform 0.1s, box-shadow 0.1s, border-color 0.15s, background 0.15s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #4f46e5, #6366f1);
+      color: #e5e7eb;
+      border-color: #4f46e5;
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 10px 25px rgba(79,70,229,0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+      background: #020617;
+      color: #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      border-color: #4b5563;
+      transform: translateY(-1px);
+    }
+
+    .overlay-hint {
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-top: 8px;
+    }
+
     @media (max-width: 900px) {
       .main {
         flex-direction: column;
@@ -351,10 +499,39 @@
 </head>
 <body>
   <div class="app">
+    <!-- ÜLKE SEÇME OVERLAY -->
+    <div class="overlay" id="countryOverlay">
+      <div class="overlay-inner">
+        <div class="overlay-title">Ülkeni Seç</div>
+        <div class="overlay-sub">
+          Seçeceğin ülkenin <strong>başkanı / lideri sensin.</strong><br>
+          Haritada o ülkeye odaklanacağız ve etkileşimler ona göre çalışacak.
+        </div>
+
+        <div class="overlay-row">
+          <div class="overlay-label">Başkanlığını üstleneceğin ülke</div>
+          <select id="playerCountrySelect" class="overlay-select">
+            <!-- JS ile doldurulacak -->
+          </select>
+        </div>
+
+        <div class="overlay-buttons">
+          <button class="btn btn-primary" id="btnStartGame">Başlat</button>
+          <button class="btn btn-secondary" id="btnRandomCountry">Rastgele ülke</button>
+        </div>
+
+        <div class="overlay-hint">
+          Bu sadece prototip — şu an sınırlı sayıda ülke var. İleride tam liste + arama eklenebilir.
+        </div>
+      </div>
+    </div>
+
+    <!-- ÜST BAR -->
     <div class="top-bar">
       <div class="logo-area">
         <div class="logo-main">tarihsenaryosu_ai</div>
-        <div class="logo-sub">dünya senaryosu • prototip arayüz</div>
+        <div class="logo-sub" id="logoSub">dünya senaryosu • ülke seçilmedi</div>
+        <div class="player-tag" id="playerTag">Lider: -</div>
       </div>
       <div class="time-controls">
         <div class="date-display" id="dateDisplay">
@@ -374,22 +551,27 @@
     </div>
 
     <div class="main">
+      <!-- SOL: HARİTA -->
       <div class="left-panel">
         <div id="map"></div>
         <div class="map-footer">
-          <span>🌍 Dünya haritası aktif — tıklayarak bir bölge seç.</span>
+          <span>
+            🌍 Haritadan bir ülke seç. <strong>Koyu marker</strong> seçilen bölgeyi gösterir.
+          </span>
           <span id="coordsLabel">Seçim yok</span>
         </div>
       </div>
 
+      <!-- SAĞ: PANELLER -->
       <div class="right-panel">
+        <!-- ÜLKE PANELİ -->
         <div class="card">
           <div class="card-header">
             <div class="card-title">Ülke Paneli</div>
             <div class="badge" id="countryBadge">pasif</div>
           </div>
           <div class="country-name" id="countryName">Henüz ülke seçilmedi</div>
-          <div class="country-meta" id="countryMeta">Haritaya tıklayarak bir bölge seç.</div>
+          <div class="country-meta" id="countryMeta">Haritaya tıklayarak veya ülke panelinden seçim yap.</div>
 
           <div class="country-stats" id="countryStats">
             <div class="stat-row">
@@ -412,13 +594,32 @@
 
           <div class="country-actions">
             <button class="mini-btn" id="btnFocus">Haritada odaklan</button>
-            <button class="mini-btn" id="btnSimulate">Senaryo üret</button>
+            <button class="mini-btn" id="btnSimulate">Ülke için senaryo</button>
           </div>
         </div>
 
+        <!-- DİPLOMASİ / ETKİLEŞİM PANELİ -->
+        <div class="card">
+          <div class="card-header">
+            <div class="card-title">Diplomasi & Etkileşim</div>
+            <div class="badge" id="relationBadge">oyuncu ülkesi: -</div>
+          </div>
+          <div class="relation-label">Seçilen dünya: </div>
+          <div class="relation-main" id="relationMain">
+            Henüz oyuncu ülkesi seçilmedi. Önce ülkeni seç, sonra haritadan başka bir ülke seçerek aradaki ilişkiyi dene.
+          </div>
+          <div class="relation-actions">
+            <button class="mini-btn" id="btnFriendly">Dostça mesaj</button>
+            <button class="mini-btn" id="btnTrade">Ticaret teklifi</button>
+            <button class="mini-btn" id="btnTension">Gerilimi artır</button>
+          </div>
+          <div class="relation-log" id="relationLog"></div>
+        </div>
+
+        <!-- CHAT PANELİ -->
         <div class="card chat-container">
           <div class="card-header">
-            <div class="card-title">AI Chat • Ülke bilgisi</div>
+            <div class="card-title">AI Chat • Ülke bilgisi & senaryo</div>
             <div class="badge">offline prototip</div>
           </div>
           <div class="chat-messages" id="chatMessages"></div>
@@ -426,7 +627,7 @@
             <input
               type="text"
               id="chatInput"
-              placeholder="Ülke hakkında soru yaz (örn: 'Türkiye nüfus')..."
+              placeholder="Soru yaz: 'benim ülkemin ekonomisi', 'Türkiye nüfusu'..."
             />
             <button id="chatSendBtn">Gönder</button>
           </div>
@@ -494,6 +695,202 @@
 
     renderDate();
 
+    // ---------- ÜLKE VERİLERİ ----------
+    // Prototip: sınırlı sayıda ülke (kolayca genişletilebilir)
+    const countriesDB = {
+      TR: {
+        code: "TR",
+        name: "Türkiye",
+        capital: "Ankara",
+        population: "≈ 85 milyon",
+        gdp: "≈ 900 milyar $",
+        region: "Avrupa / Orta Doğu",
+        flavor:
+          "Türkiye, Avrupa ile Asya arasında köprü konumunda, jeopolitik önemi yüksek bir ülkedir.",
+        latlng: [39, 35]
+      },
+      US: {
+        code: "US",
+        name: "Amerika Birleşik Devletleri",
+        capital: "Washington, D.C.",
+        population: "≈ 333 milyon",
+        gdp: "≈ 25 trilyon $",
+        region: "Kuzey Amerika",
+        flavor:
+          "ABD, dünyanın en büyük ekonomilerinden biri ve küresel siyaset üzerinde büyük etkiye sahip.",
+        latlng: [38, -97]
+      },
+      DE: {
+        code: "DE",
+        name: "Almanya",
+        capital: "Berlin",
+        population: "≈ 84 milyon",
+        gdp: "≈ 4 trilyon $",
+        region: "Avrupa",
+        flavor:
+          "Almanya, Avrupa Birliği'nin ekonomik motoru ve sanayi üretiminde dünya çapında bir merkezdir.",
+        latlng: [51, 10]
+      },
+      RU: {
+        code: "RU",
+        name: "Rusya",
+        capital: "Moskova",
+        population: "≈ 145 milyon",
+        gdp: "≈ 1.8 trilyon $",
+        region: "Avrasya",
+        flavor:
+          "Rusya, geniş toprakları ve enerji kaynakları ile dikkat çeken, tarihsel olarak büyük bir güç.",
+        latlng: [60, 90]
+      },
+      CN: {
+        code: "CN",
+        name: "Çin",
+        capital: "Pekin",
+        population: "≈ 1.4 milyar",
+        gdp: "≈ 18 trilyon $",
+        region: "Asya",
+        flavor:
+          "Çin, dünyanın en kalabalık ülkesi ve küresel ticaret ağının merkezlerinden biri.",
+        latlng: [35, 103]
+      },
+      FR: {
+        code: "FR",
+        name: "Fransa",
+        capital: "Paris",
+        population: "≈ 68 milyon",
+        gdp: "≈ 3 trilyon $",
+        region: "Avrupa",
+        flavor:
+          "Fransa, kültürel mirası, sanatı ve diplomatik etkisiyle öne çıkan bir Avrupa ülkesidir.",
+        latlng: [46.5, 2.5]
+      },
+      GB: {
+        code: "GB",
+        name: "Birleşik Krallık",
+        capital: "Londra",
+        population: "≈ 67 milyon",
+        gdp: "≈ 3 trilyon $",
+        region: "Avrupa",
+        flavor:
+          "Birleşik Krallık, tarihi imparatorluk geçmişi ve finans merkezi Londra ile önemli bir küresel aktördür.",
+        latlng: [55, -3]
+      },
+      BR: {
+        code: "BR",
+        name: "Brezilya",
+        capital: "Brasília",
+        population: "≈ 215 milyon",
+        gdp: "≈ 1.6 trilyon $",
+        region: "Güney Amerika",
+        flavor:
+          "Brezilya, Güney Amerika'nın en büyük ülkesi ve doğal kaynakları ile öne çıkan bir güçtür.",
+        latlng: [-10, -52]
+      },
+      IN: {
+        code: "IN",
+        name: "Hindistan",
+        capital: "Yeni Delhi",
+        population: "≈ 1.4 milyar",
+        gdp: "≈ 3.7 trilyon $",
+        region: "Asya",
+        flavor:
+          "Hindistan, genç nüfusu ve hızla büyüyen ekonomisiyle geleceğin süper güç adaylarından biridir.",
+        latlng: [22, 79]
+      },
+      JP: {
+        code: "JP",
+        name: "Japonya",
+        capital: "Tokyo",
+        population: "≈ 125 milyon",
+        gdp: "≈ 4.2 trilyon $",
+        region: "Asya",
+        flavor:
+          "Japonya, teknoloji, sanayi ve pop kültürü ile dünya sahnesinde önemli bir yere sahiptir.",
+        latlng: [36, 138]
+      },
+      EG: {
+        code: "EG",
+        name: "Mısır",
+        capital: "Kahire",
+        population: "≈ 110 milyon",
+        gdp: "≈ 475 milyar $",
+        region: "Afrika / Orta Doğu",
+        flavor:
+          "Mısır, Nil Nehri ve antik medeniyet mirası ile tarih boyunca stratejik bir bölge olmuştur.",
+        latlng: [26, 30]
+      }
+    };
+
+    const allCountryCodes = Object.keys(countriesDB);
+
+    // ---------- ÜLKE SEÇME OVERLAY ----------
+    const overlay = document.getElementById("countryOverlay");
+    const playerCountrySelect = document.getElementById("playerCountrySelect");
+    const btnStartGame = document.getElementById("btnStartGame");
+    const btnRandomCountry = document.getElementById("btnRandomCountry");
+    const logoSub = document.getElementById("logoSub");
+    const playerTag = document.getElementById("playerTag");
+    const relationBadge = document.getElementById("relationBadge");
+
+    const playerCountry = {
+      code: null,
+      data: null
+    };
+
+    function fillPlayerCountrySelect() {
+      playerCountrySelect.innerHTML = "";
+      allCountryCodes.forEach(code => {
+        const c = countriesDB[code];
+        const opt = document.createElement("option");
+        opt.value = code;
+        opt.textContent = c.name;
+        playerCountrySelect.appendChild(opt);
+      });
+      playerCountrySelect.value = "TR"; // default Türkiye
+    }
+
+    function setPlayerCountry(code) {
+      const c = countriesDB[code];
+      if (!c) return;
+      playerCountry.code = code;
+      playerCountry.data = c;
+      logoSub.textContent = `dünya senaryosu • oyuncu ülkesi: ${c.name}`;
+      playerTag.textContent = `Lider: ${c.name} başkanı sensin`;
+      relationBadge.textContent = `oyuncu ülkesi: ${c.name}`;
+      // haritayı oyuncu ülkesine odakla
+      if (c.latlng) {
+        map.setView(c.latlng, 4);
+        // seçilen ülke paneline de set edelim
+        selectedCountry.code = code;
+        selectedCountry.data = c;
+        selectedCountry.latlng = L.latLng(c.latlng[0], c.latlng[1]);
+        if (marker) {
+          marker.setLatLng(selectedCountry.latlng);
+        } else {
+          marker = L.marker(selectedCountry.latlng).addTo(map);
+        }
+        updateCountryPanel();
+        updateRelationText();
+      }
+    }
+
+    btnStartGame.addEventListener("click", () => {
+      const code = playerCountrySelect.value;
+      setPlayerCountry(code);
+      overlay.style.display = "none";
+      addBotMessage(
+        `${countriesDB[code].name} ülkesinin lideri olarak oyuna başladın. Haritadan başka ülkeleri seçip diplomasi ve senaryo etkileşimlerini deneyebilirsin.`
+      );
+    });
+
+    btnRandomCountry.addEventListener("click", () => {
+      const randomCode =
+        allCountryCodes[Math.floor(Math.random() * allCountryCodes.length)];
+      playerCountrySelect.value = randomCode;
+    });
+
+    fillPlayerCountrySelect();
+
     // ---------- DÜNYA HARİTASI (LEAFLET) ----------
     const map = L.map("map", {
       worldCopyJump: true
@@ -508,54 +905,32 @@
     let marker = null;
     const coordsLabel = document.getElementById("coordsLabel");
 
-    // Basit ülke veritabanı (demo için birkaç ülke)
-    const countriesDB = {
-      TR: {
-        name: "Türkiye",
-        capital: "Ankara",
-        population: "≈ 85 milyon",
-        gdp: "≈ 900 milyar $",
-        region: "Avrupa / Orta Doğu",
-        flavor:
-          "Türkiye, Avrupa ile Asya arasında köprü konumunda, jeopolitik önemi yüksek bir ülkedir."
-      },
-      US: {
-        name: "Amerika Birleşik Devletleri",
-        capital: "Washington, D.C.",
-        population: "≈ 333 milyon",
-        gdp: "≈ 25 trilyon $",
-        region: "Kuzey Amerika",
-        flavor:
-          "ABD, dünyanın en büyük ekonomilerinden biri ve küresel siyaset üzerinde büyük etkiye sahip."
-      },
-      DE: {
-        name: "Almanya",
-        capital: "Berlin",
-        population: "≈ 84 milyon",
-        gdp: "≈ 4 trilyon $",
-        region: "Avrupa",
-        flavor:
-          "Almanya, Avrupa Birliği'nin ekonomik motoru ve sanayi üretiminde dünya çapında bir merkezdir."
-      },
-      RU: {
-        name: "Rusya",
-        capital: "Moskova",
-        population: "≈ 145 milyon",
-        gdp: "≈ 1.8 trilyon $",
-        region: "Avrasya",
-        flavor:
-          "Rusya, geniş toprakları ve enerji kaynakları ile dikkat çeken, tarihsel olarak büyük bir güç."
-      },
-      CN: {
-        name: "Çin",
-        capital: "Pekin",
-        population: "≈ 1.4 milyar",
-        gdp: "≈ 18 trilyon $",
-        region: "Asya",
-        flavor:
-          "Çin, dünyanın en kalabalık ülkesi ve küresel ticaret ağının merkezlerinden biri."
-      }
-    };
+    // Çok kaba bounding box ile ülke tahmini (demo)
+    function detectCountryByLatLng(lat, lng) {
+      // Türkiye
+      if (lat >= 35 && lat <= 43 && lng >= 25 && lng <= 45) return "TR";
+      // ABD (kıta)
+      if (lat >= 24 && lat <= 49 && lng >= -125 && lng <= -66) return "US";
+      // Almanya
+      if (lat >= 47 && lat <= 55 && lng >= 5 && lng <= 16) return "DE";
+      // Rusya
+      if (lat >= 50 && lat <= 75 && lng >= 30 && lng <= 160) return "RU";
+      // Çin
+      if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) return "CN";
+      // Brezilya
+      if (lat >= -35 && lat <= 5 && lng >= -75 && lng <= -34) return "BR";
+      // Hindistan
+      if (lat >= 7 && lat <= 37 && lng >= 68 && lng <= 97) return "IN";
+      // Japonya
+      if (lat >= 30 && lat <= 46 && lng >= 129 && lng <= 146) return "JP";
+      // Mısır
+      if (lat >= 22 && lat <= 32 && lng >= 24 && lng <= 36) return "EG";
+      // Fransa
+      if (lat >= 42 && lat <= 51 && lng >= -5 && lng <= 8) return "FR";
+      // Birleşik Krallık
+      if (lat >= 50 && lat <= 59 && lng >= -8 && lng <= 2) return "GB";
+      return null;
+    }
 
     const countryNameEl = document.getElementById("countryName");
     const countryMetaEl = document.getElementById("countryMeta");
@@ -573,35 +948,10 @@
       latlng: null
     };
 
-    // Çok kaba bounding box ile ülke tahmini (demo)
-    function detectCountryByLatLng(lat, lng) {
-      // Türkiye
-      if (lat >= 35 && lat <= 43 && lng >= 25 && lng <= 45) {
-        return "TR";
-      }
-      // ABD (kıta)
-      if (lat >= 24 && lat <= 49 && lng >= -125 && lng <= -66) {
-        return "US";
-      }
-      // Almanya
-      if (lat >= 47 && lat <= 55 && lng >= 5 && lng <= 16) {
-        return "DE";
-      }
-      // Rusya (çok kaba)
-      if (lat >= 50 && lat <= 75 && lng >= 30 && lng <= 160) {
-        return "RU";
-      }
-      // Çin (kabaca)
-      if (lat >= 18 && lat <= 54 && lng >= 73 && lng <= 135) {
-        return "CN";
-      }
-      return null;
-    }
-
     function updateCountryPanel() {
       if (!selectedCountry.code || !selectedCountry.data) {
         countryNameEl.textContent = "Henüz ülke seçilmedi";
-        countryMetaEl.textContent = "Haritaya tıklayarak bir bölge seç.";
+        countryMetaEl.textContent = "Haritaya tıklayarak veya ülke seçiminden bir ülke seç.";
         capitalValueEl.textContent = "-";
         populationValueEl.textContent = "-";
         gdpValueEl.textContent = "-";
@@ -613,13 +963,25 @@
 
       const c = selectedCountry.data;
       countryNameEl.textContent = c.name;
-      countryMetaEl.textContent = c.flavor;
+      let meta = c.flavor;
+      if (playerCountry.code && selectedCountry.code === playerCountry.code) {
+        meta += " (Bu ülke senin kontrolünde.)";
+        countryBadgeEl.textContent = "senin ülken";
+        countryBadgeEl.style.color = "#4ade80";
+      } else if (playerCountry.code) {
+        meta += " (Bu ülke ile diplomasi yapabilirsin.)";
+        countryBadgeEl.textContent = "yabancı ülke";
+        countryBadgeEl.style.color = "#fbbf24";
+      } else {
+        countryBadgeEl.textContent = "aktif";
+        countryBadgeEl.style.color = "#a5b4fc";
+      }
+      countryMetaEl.textContent = meta;
+
       capitalValueEl.textContent = c.capital;
       populationValueEl.textContent = c.population;
       gdpValueEl.textContent = c.gdp;
       regionValueEl.textContent = c.region;
-      countryBadgeEl.textContent = "aktif";
-      countryBadgeEl.style.color = "#4ade80";
     }
 
     map.on("click", (e) => {
@@ -645,19 +1007,22 @@
       }
 
       updateCountryPanel();
+      updateRelationText();
       addBotMessageOnCountryChange();
     });
 
     btnFocus.addEventListener("click", () => {
       if (selectedCountry.latlng) {
         map.setView(selectedCountry.latlng, 5);
+      } else if (playerCountry.data && playerCountry.data.latlng) {
+        map.setView(playerCountry.data.latlng, 4);
       }
     });
 
     btnSimulate.addEventListener("click", () => {
       if (!selectedCountry.data) {
         addBotMessage(
-          "Henüz net bir ülke seçmedin. Haritadan Türkiye, ABD, Almanya, Rusya veya Çin çevresine tıklamayı dene."
+          "Henüz net bir ülke seçilmedi. Haritadan tanımlı bir bölgeye tıklamayı dene (Türkiye, ABD, Almanya, Rusya, Çin, Brezilya, Hindistan, Japonya, Mısır, Fransa, Birleşik Krallık)."
         );
         return;
       }
@@ -665,8 +1030,91 @@
       const msg =
         `${c.name} için hızlı bir senaryo: ${formatDateTR(simTime.date)} itibarıyla ` +
         `${c.region} bölgesinde jeopolitik önemi yüksek. Ekonomi seviyesi ${c.gdp} bandında, ` +
-        `nüfus yaklaşık ${c.population}. Oyun içinde bu ülke ile diplomasi, ticaret ve askeri kararlar planlanabilir.`;
+        `nüfus yaklaşık ${c.population}. Bu ülke için ileride diplomasi, ticaret ve askeri kararlar detaylı olarak işlenebilir.`;
       addBotMessage(msg);
+    });
+
+    // ---------- DİPLOMASİ / ETKİLEŞİM ----------
+    const relationMain = document.getElementById("relationMain");
+    const relationLog = document.getElementById("relationLog");
+    const btnFriendly = document.getElementById("btnFriendly");
+    const btnTrade = document.getElementById("btnTrade");
+    const btnTension = document.getElementById("btnTension");
+
+    function addRelationEntry(text) {
+      const div = document.createElement("div");
+      div.className = "relation-entry";
+      div.textContent = text;
+      relationLog.prepend(div);
+    }
+
+    function updateRelationText() {
+      if (!playerCountry.code) {
+        relationMain.textContent =
+          "Henüz oyuncu ülkesi seçilmedi. Önce başlangıç ekranından ülkeni seç.";
+        return;
+      }
+      if (!selectedCountry.code || !selectedCountry.data) {
+        relationMain.textContent =
+          `${playerCountry.data.name} liderisin. Haritadan başka bir ülke seçtiğinde aradaki ilişkiyi burada göreceksin.`;
+        return;
+      }
+      if (selectedCountry.code === playerCountry.code) {
+        relationMain.innerHTML =
+          `<strong>${playerCountry.data.name}</strong> kendi ülken. İç politika, ekonomi ve ordu kararları ileri sürümlerde burada şekillenecek.`;
+      } else {
+        relationMain.innerHTML =
+          `<strong>${playerCountry.data.name}</strong> ↔ <strong>${selectedCountry.data.name}</strong> arasındaki ilişki: ` +
+          `şu an tarafsız. Aşağıdaki butonlarla dostça mesaj, ticaret veya gerilim etkileşimleri oluşturabilirsin.`;
+      }
+    }
+
+    btnFriendly.addEventListener("click", () => {
+      if (!playerCountry.code || !selectedCountry.data) {
+        addRelationEntry("Önce bir oyuncu ülkesi ve haritadan bir hedef ülke seç.");
+        return;
+      }
+      if (playerCountry.code === selectedCountry.code) {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name} içinde iç barış mesajları yayıldı. Halk memnun görünüyor.`
+        );
+      } else {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name}, ${selectedCountry.data.name} yönetimine dostça bir diplomatik mesaj gönderdi.`
+        );
+      }
+    });
+
+    btnTrade.addEventListener("click", () => {
+      if (!playerCountry.code || !selectedCountry.data) {
+        addRelationEntry("Önce bir oyuncu ülkesi ve haritadan bir hedef ülke seç.");
+        return;
+      }
+      if (playerCountry.code === selectedCountry.code) {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name} iç pazarında yeni ticaret reformları konuşuluyor.`
+        );
+      } else {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name}, ${selectedCountry.data.name} ile ticaret anlaşması görüşmelerine başladı.`
+        );
+      }
+    });
+
+    btnTension.addEventListener("click", () => {
+      if (!playerCountry.code || !selectedCountry.data) {
+        addRelationEntry("Önce bir oyuncu ülkesi ve haritadan bir hedef ülke seç.");
+        return;
+      }
+      if (playerCountry.code === selectedCountry.code) {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name} içinde iç siyasi gerilimler artıyor; ileride bu iç savaş riskine dönüşebilir.`
+        );
+      } else {
+        addRelationEntry(
+          `${formatDateTR(simTime.date)} • ${playerCountry.data.name} ile ${selectedCountry.data.name} arasında diplomatik gerilim arttı. Haber başlıkları sertleşiyor.`
+        );
+      }
     });
 
     // ---------- "AI CHAT" (OFFLINE PROTOTİP) ----------
@@ -695,7 +1143,9 @@
 
     function addBotMessageOnCountryChange() {
       if (!selectedCountry.data) {
-        addBotMessage("Bu koordinasyon tam olarak tanımlı bir ülke alanına düşmüyor. Demo için Türkiye, ABD, Almanya, Rusya veya Çin sınırlarına tıklamayı deneyebilirsin.");
+        addBotMessage(
+          "Bu koordinasyon tam olarak tanımlı bir ülke alanına düşmüyor. Demo için Türkiye, ABD, Almanya, Rusya, Çin, Brezilya, Hindistan, Japonya, Mısır, Fransa veya Birleşik Krallık çevresine tıklamayı deneyebilirsin."
+        );
       } else {
         const c = selectedCountry.data;
         addBotMessage(
@@ -706,36 +1156,57 @@
 
     function generateAIResponse(input) {
       const text = input.toLowerCase();
-      const c = selectedCountry.data;
+      const selected = selectedCountry.data;
+      const player = playerCountry.data;
 
-      if (!c) {
-        return "Şu anda belirli bir ülke seçilmedi. Haritadan bir ülke bölgesine tıklayıp sonra tekrar sorabilirsin.";
+      // "benim ülkem" ifadeleri
+      if (text.includes("benim ülkem") || text.includes("ülkem") || text.includes("başkanıyım")) {
+        if (!player) {
+          return "Henüz oyuncu ülkesi seçmedin. Başlangıç overlay ekranından bir ülke seçtiğinde 'benim ülkem' sorularına cevap verebilirim.";
+        }
+        return `${player.name} senin kontrolünde. Başkent ${player.capital}, nüfus yaklaşık ${player.population}, ekonomi seviyesi prototipte ${player.gdp} bandında. Bölge: ${player.region}.`;
       }
 
-      let base = `${c.name} hakkında kısa bir özet: Başkent ${c.capital}, nüfus yaklaşık ${c.population}, ` +
-        `ekonomi kabaca ${c.gdp} seviyesinde ve ${c.region} bölgesinde yer alıyor. ${c.flavor} `;
-
-      if (text.includes("nüfus")) {
-        return `${c.name} için demo nüfus değeri: ${c.population}. Gerçek oyunda bu sayı yıl yıl değişen dinamik bir değişken olacak.`;
+      // belirli ülke adı geçerse ilgili ülke
+      for (const code of allCountryCodes) {
+        const c = countriesDB[code];
+        if (text.includes(c.name.toLowerCase().split(" ")[0])) {
+          return `${c.name} hakkında kısa bir özet: Başkent ${c.capital}, nüfus yaklaşık ${c.population}, ekonomi kabaca ${c.gdp}, bölge: ${c.region}. ${c.flavor}`;
+        }
       }
 
-      if (text.includes("ekonomi") || text.includes("gsyih") || text.includes("para")) {
-        return `${c.name} ekonomisi prototipte ${c.gdp} bandında modelleniyor. İleride; vergi, ticaret, üretim ve savaş kararların bu değeri dinamik olarak değiştirecek.`;
+      // Seçilmiş ülke varsa
+      if (selected) {
+        const c = selected;
+        if (text.includes("nüfus")) {
+          return `${c.name} için demo nüfus değeri: ${c.population}. Gerçek oyunda bu değer zamanla değişen dinamik bir parametre olacak.`;
+        }
+
+        if (text.includes("ekonomi") || text.includes("gsyih") || text.includes("para")) {
+          return `${c.name} ekonomisi bu prototipte ${c.gdp} bandında modelleniyor. İleride vergi, ticaret, üretim ve savaş kararların bu değeri dinamik olarak değiştirecek.`;
+        }
+
+        if (text.includes("başkent") || text.includes("capital") || text.includes("yönetim")) {
+          return `${c.name} için kaydedilen başkent: ${c.capital}. Oyun mekaniği fikri: başkenti kaybedersen istikrar ve moralde büyük bir düşüş olacak.`;
+        }
+
+        if (text.includes("bölge") || text.includes("jeopolitik") || text.includes("konum")) {
+          return `${c.name}, ${c.region} bölgesinde yer alıyor. Jeopolitik önemi: ${c.flavor}`;
+        }
+
+        if (text.includes("senaryo") || text.includes("olay") || text.includes("event")) {
+          return `Örnek bir olay: ${formatDateTR(simTime.date)} tarihinde ${c.name} için diplomasi krizleri, ticaret anlaşmaları ve sınır gerginlikleri üretilebilir. Prototipte butonlarla basit senaryolar deniyoruz.`;
+        }
+
+        return `${c.name} için demo bilgiler: başkent ${c.capital}, nüfus ${c.population}, ekonomi ${c.gdp}, bölge ${c.region}. ${c.flavor}`;
       }
 
-      if (text.includes("başkent") || text.includes("capital") || text.includes("yönetim")) {
-        return `${c.name} için kaydedilen başkent: ${c.capital}. Olası oyun mekaniği: başkenti kaybedersen ciddi istikrar ve moral cezası alırsın.`;
+      // genel fallback
+      if (player) {
+        return `Şu anda ${player.name} ülkesinin liderisin. Haritadan başka ülkeleri seçip diplomasi paneli ve 'senaryo' butonunu deneyebilirsin. Daha spesifik bir soru sor: 'benim ülkemin ekonomisi', 'Türkiye nüfusu' gibi.`;
       }
 
-      if (text.includes("bölge") || text.includes("jeopolitik") || text.includes("konum")) {
-        return `${c.name}, ${c.region} bölgesinde yer alıyor. Jeopolitik önemi: ${c.flavor}`;
-      }
-
-      if (text.includes("senaryo") || text.includes("olay") || text.includes("event")) {
-        return `Örnek bir olay: ${formatDateTR(simTime.date)} tarihinde ${c.name} için diplomasi krizleri, ticaret anlaşmaları ve sınır gerginlikleri üretilebilir. Bu prototipte butonla basit senaryolar üretiyoruz.`;
-      }
-
-      return base + "Soruna özel detaylı model henüz tam bağlı değil, ama bu alan ileride gerçek AI API'lerine bağlanacak.";
+      return "Bu prototipte sınırlı bir ülke veritabanı var. Önce ülke seç overlay'inde bir ülke seç, sonra 'benim ülkem', 'Türkiye nüfusu' gibi sorular sorabilirsin.";
     }
 
     function handleChatSend() {
@@ -746,7 +1217,7 @@
       const response = generateAIResponse(value);
       setTimeout(() => {
         addBotMessage(response);
-      }, 150);
+      }, 120);
     }
 
     chatSendBtn.addEventListener("click", handleChatSend);
@@ -759,8 +1230,12 @@
 
     // Başlangıç mesajı
     addBotMessage(
-      "tarihsenaryosu_ai prototipine hoş geldin. Haritadan bir ülke bölgesine tıkla, sonra sağdaki panelden ülke bilgisi ve senaryoları dene. Chat kısmına 'Türkiye nüfus', 'ekonomi durumu', 'senaryo' gibi şeyler yazabilirsin."
+      "tarihsenaryosu_ai dünya prototipine hoş geldin. Önce açılan ekrandan bir ülke seç; böylece o ülkenin lideri olacaksın. Sonra haritadan başka ülkeleri seçip diplomasi panelini ve chat'i kullanabilirsin."
     );
+
+    // İLK DURUM
+    updateCountryPanel();
+    updateRelationText();
   </script>
 </body>
 </html>
